@@ -18,7 +18,7 @@ class Enemy(pygame.sprite.Sprite):
         self.surf.set_colorkey((0,0,0),RLEACCEL)
         self.rect = self.surf.get_rect(
             center=(
-                SCREEN_WIDTH - 100,
+                SCREEN_WIDTH + 100,
                 random.randint(0,SCREEN_HEIGHT)
             )
         )
