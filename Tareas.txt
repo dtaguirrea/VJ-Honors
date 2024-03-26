@@ -1,2 +1,3 @@
 Tareas:
 Menu de inicio y pausa: Javier
+Pantalla de muerte: Javier
