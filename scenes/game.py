@@ -11,7 +11,7 @@ from elements.jorge import Player
 
 from elements.bug import Enemy
 
-from elements.buttons import Button
+from elements.buttons import (Button, draw_text)
 
 
 def StartScene():
@@ -52,9 +52,12 @@ def StartScene():
     
     ''' 4.- contenedores de enemigos y jugador'''
     enemies = pygame.sprite.Group()
+    players = pygame.sprite.Group()
+    players.add(player1)
+    players.add(player2)
     all_sprites = pygame.sprite.Group()
-    all_sprites.add(player1)
-    all_sprites.add(player2)
+    all_sprites.add(players)
+    
     
     ''' hora de hacer el gameloop '''
     running = True
@@ -62,6 +65,7 @@ def StartScene():
     #Variables cronometro
     out_time_int = 0
     game_time_int = 0
+    old_time_int = 0
     cronometer_time = ""
     cronometer = font.render(cronometer_time, True, (255,255, 255), None)
     cronometer_Rect = cronometer.get_rect()
@@ -110,10 +114,10 @@ def StartScene():
         if game_state == "play":    #JUEGO SE EJECUTA
             screen.blit(background_image,[0,0])
             if pygame.sprite.spritecollideany(player1,enemies):
-                player1.kill()
+                # player1.kill()
                 game_state = "over"
             if pygame.sprite.spritecollideany(player2,enemies):
-                player2.kill()
+                # player2.kill()
                 game_state = "over"
             player1.update(pressed_keys)
             player2.update(pressed_keys)
@@ -124,7 +128,7 @@ def StartScene():
     
             #CRONOMETRO EN PANTALLA
             cronometer_time = str(pygame.time.get_ticks() - out_time_int)
-            game_time_int = pygame.time.get_ticks() - out_time_int
+            game_time_int = pygame.time.get_ticks() - out_time_int - old_time_int
             game_time_sec = game_time_int//1000
             cronometer_minute = "00"
             cronometer_second = "00"
@@ -154,17 +158,27 @@ def StartScene():
     
         elif game_state == "pause": # MENU DE PAUSA
             screen.blit(pause_menu_image_scaled, [0, 0])
-            out_time_int = pygame.time.get_ticks() - game_time_int
+            out_time_int = pygame.time.get_ticks() - game_time_int - old_time_int
             if button_1.draw(button_1_image_1):
                 game_state = "play"
             if button_2.draw(button_2_image_1):
                 running = False
 
         elif game_state == "over":
+            screen.fill((0,0,0))
+            draw_text(cronometer_time_zero,font,(255,255,255),SCREEN_WIDTH//2,100,screen)
             if button_1.draw(button_1_image_1):
+                out_time_int = pygame.time.get_ticks()
                 game_state = "play"
             if button_2.draw(button_2_image_1):
                 running = False
+            for entity in all_sprites:
+                if entity in enemies:
+                    entity.kill()
+                elif entity in players:
+                    entity.rect.move_ip(-4000,-4000)
+                    
+            
         
         pygame.display.flip()
                 
