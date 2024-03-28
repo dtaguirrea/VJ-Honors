@@ -159,8 +159,12 @@ def StartScene():
                 game_state = "play"
             if button_2.draw(button_2_image_1):
                 running = False
+
         elif game_state == "over":
-            print("death")
+            if button_1.draw(button_1_image_1):
+                game_state = "play"
+            if button_2.draw(button_2_image_1):
+                running = False
         
         pygame.display.flip()
                 
