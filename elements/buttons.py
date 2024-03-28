@@ -1,6 +1,7 @@
 import pygame
 
 # Codigo con ayuda de Coding With Russ: https://www.youtube.com/watch?v=G8MYGDf_9ho&ab_channel=CodingWithRuss
+#                                       https://www.youtube.com/watch?v=2iyx8_elcYg&t=70s&ab_channel=CodingWithRuss
 
 class Button():
     def __init__(self,x,y,image, scale, screen):
@@ -43,3 +44,8 @@ class Button():
         self.image = pygame.transform.scale(n_image, (int(self.width*self.scale),int(self.height*self.scale)))
         self.screen.blit(self.image, (self.rect.x, self.rect.y+100))
         #pygame.display.flip()  
+
+
+def draw_text(text, font, text_col, x, y,screen):
+        img = font.render(text, True, text_col)
+        screen.blit(img, (x, y))
