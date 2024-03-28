@@ -111,10 +111,10 @@ def StartScene():
             screen.blit(background_image,[0,0])
             if pygame.sprite.spritecollideany(player1,enemies):
                 player1.kill()
-                running=False
+                game_state = "over"
             if pygame.sprite.spritecollideany(player2,enemies):
                 player2.kill()
-                running=False
+                game_state = "over"
             player1.update(pressed_keys)
             player2.update(pressed_keys)
             enemies.update()
@@ -159,7 +159,8 @@ def StartScene():
                 game_state = "play"
             if button_2.draw(button_2_image_1):
                 running = False
-    
+        elif game_state == "over":
+            print("death")
         
         pygame.display.flip()
                 
