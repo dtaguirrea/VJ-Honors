@@ -81,7 +81,7 @@ def StartScene():
     
     # Variables del juego:
     
-    #Estados de juego: "menu", "play", "pause"
+    #Estados de juego: "menu", "play", "pause", "over"
     game_state = "menu"
     
     
