@@ -1,9 +1,9 @@
 import pygame
 
-# Codigo con ayuda de Coding With Russ: https://www.youtube.com/watch?v=G8MYGDf_9ho&ab_channel=CodingWithRuss
-#                                       https://www.youtube.com/watch?v=2iyx8_elcYg&t=70s&ab_channel=CodingWithRuss
+# Codigo con ayuda de Coding With Russ: https://www.youtube.com/watch?v=G8MYGDf_9ho&ab_channel=CodingWithRuss (1)
+#                                       https://www.youtube.com/watch?v=2iyx8_elcYg&t=70s&ab_channel=CodingWithRuss (2)
 
-class Button():
+class Button(): #Crea un boton en pantalla (1)
     def __init__(self,x,y,image, scale, screen):
         self.width = image.get_width()
         self.height = image.get_height()
@@ -46,6 +46,26 @@ class Button():
         #pygame.display.flip()  
 
 
-def draw_text(text, font, text_col, x, y,screen):
+def draw_text(text, font, text_col, x, y,screen): #Función para escribir texto en pantalla (2)
         img = font.render(text, True, text_col)
         screen.blit(img, (x, y))
+
+def cronometer_format(time,font): #Convierte tiempo en milisegundos a un formato mm:ss.ms
+    cronometer_time = str(time)
+    time_sec = int(time)//1000
+    cronometer_minute = "00"
+    cronometer_second = "00"
+    if time_sec >= 1:
+        if time_sec >= 60:
+            cronometer_minute = "0"*(2-len(str(time_sec//60))) + str(time_sec//60)
+        else:
+            cronometer_minute = "00"
+        if time_sec - 60 * int(cronometer_minute) >= 10:
+            cronometer_second = f"{time_sec - 60 * int(cronometer_minute)}"
+        else:
+            cronometer_second = f"0{time_sec - 60 * int(cronometer_minute)}"
+    else:
+        cronometer_time_zero = f"00:00.{cronometer_time[-3:-1]}"
+
+    cronometer_time_zero = f"{cronometer_minute}:{cronometer_second}.{cronometer_time[-3:-1]}"
+    return cronometer_time_zero
