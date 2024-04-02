@@ -11,7 +11,7 @@ class Button(): #Crea un boton en pantalla (1)
         self.image = pygame.transform.scale(image, (int(self.width*scale),int(self.height*scale)))
         self.og_image = pygame.transform.scale(image, (int(self.width*scale),int(self.height*scale)))
         self.rect = self.image.get_rect()
-        self.rect.topleft = (x,y)
+        self.rect.midtop = (x,y-(self.height)//2)
         self.screen = screen
         self.clicked = False
     
@@ -48,7 +48,9 @@ class Button(): #Crea un boton en pantalla (1)
 
 def draw_text(text, font, text_col, x, y,screen): #Función para escribir texto en pantalla (2)
         img = font.render(text, True, text_col)
-        screen.blit(img, (x, y))
+        width = img.get_width()
+        height = img.get_height()
+        screen.blit(img, (x-(width)//2, y-(height)//2))
 
 def cronometer_format(time,font): #Convierte tiempo en milisegundos a un formato mm:ss.ms
     cronometer_time = str(time)
@@ -69,3 +71,31 @@ def cronometer_format(time,font): #Convierte tiempo en milisegundos a un formato
 
     cronometer_time_zero = f"{cronometer_minute}:{cronometer_second}.{cronometer_time[-3:-1]}"
     return cronometer_time_zero
+
+class Image(): #Crea un boton en pantalla (1)
+    def __init__(self,x,y,image, scale, screen):
+        self.width = image.get_width()
+        self.height = image.get_height()
+        self.scale = scale
+        self.image = pygame.transform.scale(image, (int(self.width*scale),int(self.height*scale)))
+        self.og_image = pygame.transform.scale(image, (int(self.width*scale),int(self.height*scale)))
+        self.rect = self.image.get_rect()
+        self.rect.midtop = (x,y-(self.height)//2)
+        self.screen = screen
+        self.clicked = False
+    
+    def draw(self,x_tmp,y_tmp):
+        self.rect.x = x_tmp
+        self.rect.y = y_tmp
+        #Dibuja el boton
+        self.screen.blit(self.image, (self.rect.x, self.rect.y))
+
+    def draw_boss_bar(self,x_tmp):
+        self.image = pygame.transform.scale(self.image, (x_tmp,int(self.height*self.scale)))
+        #Dibuja el boton
+        self.screen.blit(self.image, (self.rect.x, self.rect.y))
+    
+
+    def change_image(self,n_image): # Permite cambiar imagen del boton
+        self.image = pygame.transform.scale(n_image, (int(self.width*self.scale),int(self.height*self.scale)))
+        #pygame.display.flip() 
