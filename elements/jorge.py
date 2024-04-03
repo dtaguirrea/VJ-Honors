@@ -9,12 +9,17 @@ from pygame.locals import (
 
 JorgePNG = pygame.image.load("assets/JorgeVJ.png")
 JorgePNG_scaled = BUGpng_scaled = pygame.transform.scale(JorgePNG,(80,90))
+JorgePNG_2 = pygame.image.load("assets/JorgeVJ2.png")
+JorgePNG_scaled_2 = BUGpng_scaled = pygame.transform.scale(JorgePNG_2,(80,90))
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, SCREEN_WIDTH, SCREEN_HEIGHT,player):
         # nos permite invocar métodos o atributos de Sprite
         super(Player, self).__init__()
-        self.surf=JorgePNG_scaled
+        if player == 1:
+            self.surf=JorgePNG_scaled
+        elif player == 2:
+            self.surf=JorgePNG_scaled_2
         self.surf.set_colorkey((0,0,0),RLEACCEL)
         self.rect = self.surf.get_rect()
         self.screenwidth= SCREEN_WIDTH
