@@ -8,9 +8,9 @@ from pygame.locals import (
 
 
 JorgePNG = pygame.image.load("assets/JorgeVJ.png")
-JorgePNG_scaled = BUGpng_scaled = pygame.transform.scale(JorgePNG,(80,90))
+JorgePNG_scaled = pygame.transform.scale(JorgePNG,(80,90))
 JorgePNG_2 = pygame.image.load("assets/JorgeVJ2.png")
-JorgePNG_scaled_2 = BUGpng_scaled = pygame.transform.scale(JorgePNG_2,(80,90))
+JorgePNG_scaled_2 = pygame.transform.scale(JorgePNG_2,(80,90))
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, SCREEN_WIDTH, SCREEN_HEIGHT,player):

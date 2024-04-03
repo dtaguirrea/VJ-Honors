@@ -7,7 +7,8 @@ import random
 from pygame.locals import (RLEACCEL)
 
 BUGpng = pygame.image.load("assets/bug.png")
-BUGpng_scaled = pygame.transform.scale(BUGpng,(64,64))
+BUGpng_scaled = pygame.transform.scale(BUGpng,(60,61))
+Bosspng_scaled = pygame.transform.scale(BUGpng,(500,500))
 
 class Enemy(pygame.sprite.Sprite):
 
@@ -31,3 +32,91 @@ class Enemy(pygame.sprite.Sprite):
         if self.rect.right<0:
             self.kill()
         pass
+
+class Boss(pygame.sprite.Sprite):
+
+    def __init__(self, SCREEN_WIDTH, SCREEN_HEIGHT):
+        # nos permite invocar métodos o atributos de Sprite
+        super(Boss, self).__init__()
+        self.surf = Bosspng_scaled
+        self.surf.set_colorkey((0,0,0),RLEACCEL)
+        self.screenwidth= SCREEN_WIDTH
+        self.screenheight= SCREEN_HEIGHT
+        self.rect = self.surf.get_rect(
+            center=(
+                SCREEN_WIDTH - 100,
+                SCREEN_HEIGHT//2
+            )
+        )
+        self.speed = 2
+        self.going_up = True
+        self.life = 100
+        pass
+
+
+    def update(self):
+        if self.rect.top > 20 and self.going_up:
+            self.rect.move_ip(0,-self.speed)
+        else:
+            self.going_up = False
+        if self.rect.bottom < self.screenheight - 20 and self.going_up == False:
+            self.rect.move_ip(0,self.speed)
+        else:
+            self.going_up = True
+        pass
+
+
+Boss_missile_png = pygame.image.load("assets/boss_missile.png")
+class Boss_Missile(pygame.sprite.Sprite):
+    def __init__(self, SCREEN_WIDTH, SCREEN_HEIGHT):
+        # nos permite invocar métodos o atributos de Sprite
+        super(Boss_Missile, self).__init__()
+        self.surf = Boss_missile_png
+        self.surf.set_colorkey((0,0,0),RLEACCEL)
+        self.screenwidth= SCREEN_WIDTH
+        self.screenheight= SCREEN_HEIGHT
+        self.rect = self.surf.get_rect(
+            center=(
+                SCREEN_WIDTH - 100,
+                SCREEN_HEIGHT//2
+            )
+        )
+        self.speed = 2
+        pass
+
+    def update(self,player):
+        dist_x = self.rect.x - (player.rect.x + player.surf.get_width()/2) 
+        dist_y = self.rect.y - (player.rect.y + player.surf.get_height()/2) 
+        if dist_x < 150:
+            self.rect.move_ip(-4,0)
+        else:
+            self.rect.move_ip(-dist_x/abs(dist_x)*4,-dist_y/abs(dist_y)*4)
+        if self.rect.right<0:
+            self.kill()
+        pass
+
+Boss_ray_png = pygame.image.load("assets/Boss_ray.png")
+Boss_ray_png_scaled = pygame.transform.scale(Boss_ray_png,(2000,Boss_ray_png.get_height()*3))
+class Boss_Ray(pygame.sprite.Sprite):
+    def __init__(self, SCREEN_WIDTH, SCREEN_HEIGHT,boss):
+        # nos permite invocar métodos o atributos de Sprite
+        super(Boss_Ray, self).__init__()
+        self.surf = Boss_ray_png_scaled
+        self.surf.set_colorkey((0,0,0),RLEACCEL)
+        self.screenwidth= SCREEN_WIDTH
+        self.screenheight= SCREEN_HEIGHT
+        self.rect = self.surf.get_rect(
+            center=(
+                boss.rect.x,
+                boss.rect.y + boss.surf.get_height()/2
+            )
+        )
+        self.speed = 2
+        pass
+    def update(self,boss):
+        self.rect = self.surf.get_rect(
+            center=(
+                boss.rect.x,
+                boss.rect.y + boss.surf.get_height()/2
+            )
+        )
