@@ -84,9 +84,10 @@ class Image(): #Crea un boton en pantalla (1)
         self.screen = screen
         self.clicked = False
     
-    def draw(self,x_tmp,y_tmp):
+    def draw(self,x_tmp,y_tmp,transparency):
         self.rect.x = x_tmp
         self.rect.y = y_tmp
+        self.image.set_alpha(transparency)
         #Dibuja el boton
         self.screen.blit(self.image, (self.rect.x, self.rect.y))
 

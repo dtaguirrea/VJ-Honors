@@ -5,11 +5,11 @@ este modulo manejara la escena donde ocurre nuestro juego
 
 import pygame, time
 
-from pygame.locals import (K_ESCAPE, KEYDOWN, QUIT, K_p, K_1,K_2,K_b,K_v,K_n,K_m)
+from pygame.locals import (K_ESCAPE, KEYDOWN, QUIT, K_p, K_1,K_2,K_b,K_v,K_n,K_m,K_j,K_k)
 
 from elements.jorge import Player
 
-from elements.bug import (Enemy,Boss,Boss_Missile,Boss_Ray)
+from elements.bug import (Enemy,Boss,Boss_Missile,Boss_Ray,Boss_Ball)
 
 from elements.buttons import (Button, draw_text,cronometer_format,Image)
 
@@ -26,6 +26,7 @@ def StartScene():
     
     ''' 2.- crear el objeto pantalla'''
     screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
+    surface = pygame.Surface((SCREEN_WIDTH,SCREEN_HEIGHT),pygame.SRCALPHA)
     background_image = pygame.image.load("assets/pixelBackground.jpg").convert()
     background_image_scaled = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
     
@@ -130,6 +131,8 @@ def StartScene():
     missile_yes = False
     ADDBOSS_MISSILE = pygame.USEREVENT + 2
     pygame.time.set_timer(ADDBOSS_MISSILE,4000)
+    ADDENEMY_BOSS_FIGHT = pygame.USEREVENT + 3
+    pygame.time.set_timer(ADDENEMY_BOSS_FIGHT,1600)
     boss_state = 0
     #
     player_target_image = pygame.image.load("assets/player_target.png").convert_alpha()
@@ -137,6 +140,16 @@ def StartScene():
     player_target = Image(0,0,player_target_image,0.13,screen)
     boss_state_1_counter = 0
     new_boss_ray = 0
+    #
+    boss_attack_cycle = 0
+    color_counter = 100
+    color_up = True
+    warning_bar_image = pygame.image.load("assets/Danger_warning.png").convert_alpha()
+    warning_bar_image_scaled = pygame.transform.scale(warning_bar_image, (SCREEN_WIDTH, 500))
+    warning_bar = Image(SCREEN_WIDTH/2,SCREEN_HEIGHT/2,warning_bar_image_scaled,1,screen)
+    ADDBOSS_BALLS = pygame.USEREVENT + 4
+    pygame.time.set_timer(ADDBOSS_BALLS,3500)
+    balls_alive = False
 
     
     while running == True:
@@ -169,14 +182,30 @@ def StartScene():
                     else:
                         boss_state = 0
                         new_boss_ray.kill()
+                if event.key == K_j:
+                    if boss_state != 3:
+                        boss_state = 3
+                        for i in range(1,6):
+                            new_boss_ball = Boss_Ball(SCREEN_WIDTH,SCREEN_HEIGHT,boss,i)
+                            #enemy_attacks.add(new_boss_ray)
+                            enemy_attacks.add(new_boss_ball)
+                            all_sprites.add(new_boss_ball)
+                    else:
+                        boss_state = 0
                 if event.key == K_n:
                     if boss_state != 1:
                         boss_state = 1
                     elif boss_state == 1:
                         boss_state = 0
+                if event.key == K_k:
+                    boss_state = 4
             elif event.type == QUIT:
                 running = False
             elif event.type == ADDENEMY and game_state == "play":
+                new_enemy = Enemy(SCREEN_WIDTH,SCREEN_HEIGHT)
+                enemies.add(new_enemy)
+                all_sprites.add(new_enemy)
+            elif event.type == ADDENEMY_BOSS_FIGHT and game_state == "boss_test":
                 new_enemy = Enemy(SCREEN_WIDTH,SCREEN_HEIGHT)
                 enemies.add(new_enemy)
                 all_sprites.add(new_enemy)
@@ -185,7 +214,37 @@ def StartScene():
                 new_boss_misile = Boss_Missile(SCREEN_WIDTH,SCREEN_HEIGHT)
                 enemy_attacks.add(new_boss_misile)
                 all_sprites.add(new_boss_misile)
+            elif event.type == ADDBOSS_BALLS and game_state == "boss_test" and boss_state == 3:
+                balls_alive = True
+                for i in range(1,6):
+                    new_boss_ball = Boss_Ball(SCREEN_WIDTH,SCREEN_HEIGHT,boss,i)
+                    enemy_attacks.add(new_boss_ball)
+                    all_sprites.add(new_boss_ball)
         
+        #BOSS ATTACKS
+    
+        if 400 < boss_attack_cycle < 1000:
+            boss_state = 1
+            balls_alive = False
+        elif 1250 < boss_attack_cycle < 1300:
+            missile_yes = False
+        elif 1300 < boss_attack_cycle < 1500:
+            boss_state = 4
+        elif 1500 < boss_attack_cycle < 1700:
+            boss_state = 2
+            if boss_attack_cycle == 1501:
+                new_boss_ray = Boss_Ray(SCREEN_WIDTH,SCREEN_HEIGHT,boss)
+                enemy_attacks.add(new_boss_ray)
+                all_sprites.add(new_boss_ray)
+        elif 1700 < boss_attack_cycle < 1800:
+            new_boss_ray.kill()
+        elif 2000 < boss_attack_cycle < 2500:
+            boss_state = 3
+        elif boss_attack_cycle > 2600:
+            boss_attack_cycle = 0
+        else:
+            boss_state = 0        
+
         pressed_keys= pygame.key.get_pressed()
     
         # ESTADOS DE JUEGO:
@@ -291,34 +350,37 @@ def StartScene():
                 running = False
         
         elif game_state == "boss_test":
+            boss_attack_cycle += 1
             screen.blit(background_image,[0,0])
             draw_text(str(boss.life),font,(255,255,255),SCREEN_WIDTH//2,20,screen)
             draw_text(f"Boss state = {str(boss_state)}",font,(255,255,255),SCREEN_WIDTH-150,20,screen)
+            draw_text(f"Counter = {str(boss_attack_cycle)}",font,(255,255,255),40,40,screen)
             boss_bar.draw_boss_bar(boss_bar.width*(boss.life/100))
             if pygame.sprite.spritecollideany(player1,enemies) or pygame.sprite.spritecollideany(player1,enemy_attacks):
                 # player1.kill()
+                print("UNO")
                 game_state = "over"
             if player_qty == 2:
                 player2.update(pressed_keys)
                 if pygame.sprite.spritecollideany(player2,enemies) or pygame.sprite.spritecollideany(player2,enemy_attacks):
                     # player2.kill()
+                    print("DOS")
                     game_state = "over"
+            for entity in enemies:
+                screen.blit(entity.surf,entity.rect)
             player1.update(pressed_keys)
+            enemies.update()
             boss.update()
             if boss_state == 2:
                 new_boss_ray.update(boss)
                 screen.blit(new_boss_ray.surf,new_boss_ray.rect)
-            if missile_yes:
-                enemy_attacks.update(player1)
-                if pygame.sprite.spritecollideany(player1,enemy_attacks):
-                    game_state = "over"
             if boss.life <= 0:
                 boss.kill()
             for entity in all_sprites:
-                if entity != new_boss_ray:
+                if entity != new_boss_ray and type(entity) != type(Enemy(0,0)):
                     screen.blit(entity.surf,entity.rect)
-            if boss_state == 1:
-                player_target.draw(player1.rect.x,player1.rect.y)
+            if missile_yes == 1:
+                player_target.draw(player1.rect.x,player1.rect.y,255)
                 boss_state_1_counter += 1
                 draw_text(f"Counter = {str(boss_state_1_counter)}",font,(255,255,255),0,20,screen)
                 if 50 > boss_state_1_counter > 30:
@@ -326,6 +388,30 @@ def StartScene():
                 if boss_state_1_counter > 50:
                     player_target.change_image(player_target_image)
                     boss_state_1_counter = 0
+                for entity in enemy_attacks:
+                    if type(entity) == type(new_boss_misile):
+                        entity.update(player1)
+                # if pygame.sprite.spritecollideany(player1,enemy_attacks):
+                #     game_state = "over"
+                #     print("TRES")
+            if balls_alive:
+                for entity in enemy_attacks:
+                    if type(entity) == type(new_boss_ball):
+                        entity.update()
+            if boss_state == 4:
+                screen.blit(surface, (0,0))
+                if color_up:
+                    color_counter += 2
+                elif color_up == False:
+                    color_counter -= 2
+                if color_counter > 200:
+                    color_up = False
+                elif color_counter < 100:
+                    color_up = True
+                warning_bar.draw(warning_bar.rect.x,warning_bar.rect.y,color_counter)
+                
+
+                
             clock.tick(40)
                     
             

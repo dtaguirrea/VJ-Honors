@@ -120,3 +120,37 @@ class Boss_Ray(pygame.sprite.Sprite):
                 boss.rect.y + boss.surf.get_height()/2
             )
         )
+Boss_ball_png = pygame.image.load("assets/Boss_ball.png")
+Boss_ball_png_scaled = pygame.transform.scale(Boss_ball_png,(80,80))
+class Boss_Ball(pygame.sprite.Sprite):
+    def __init__(self, SCREEN_WIDTH, SCREEN_HEIGHT,boss,number):
+        # nos permite invocar métodos o atributos de Sprite
+        super(Boss_Ball, self).__init__()
+        self.surf = Boss_ball_png_scaled
+        self.surf.set_colorkey((0,0,0),RLEACCEL)
+        self.screenwidth= SCREEN_WIDTH
+        self.screenheight= SCREEN_HEIGHT
+        self.rect = self.surf.get_rect(
+            center=(
+                boss.rect.x,
+                boss.rect.y + boss.surf.get_height()/2
+            )
+        )
+        self.speed = 5
+        self.number = number
+        pass
+    def update(self):
+        if self.number == 1:
+            self.rect.move_ip(-self.speed+0.5,-self.speed)
+        elif self.number == 2:
+            self.rect.move_ip(-self.speed-0.5,-self.speed+1.5)
+        elif self.number == 3:
+            self.rect.move_ip(-self.speed-1,0)
+        elif self.number == 4:
+            self.rect.move_ip(-self.speed-0.5,self.speed-1.5)
+        elif self.number == 5:
+            self.rect.move_ip(-self.speed+0.5,self.speed)
+            
+        if self.rect.right<0:
+                self.kill()
+        pass
