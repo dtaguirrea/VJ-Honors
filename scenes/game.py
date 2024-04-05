@@ -130,6 +130,8 @@ def StartScene():
     #Boss test
     boss_bar_image = pygame.image.load("assets/boss_bar.png").convert_alpha()
     boss_bar = Image(SCREEN_WIDTH//2,100,boss_bar_image,1,screen)
+    boss_bar_border_image = pygame.image.load("assets/boss_bar_border.png").convert_alpha()
+    boss_bar_border = Image(SCREEN_WIDTH//2,100,boss_bar_border_image,1,screen)
     missile_yes = False
     ADDBOSS_MISSILE = pygame.USEREVENT + 2
     pygame.time.set_timer(ADDBOSS_MISSILE,4000)
@@ -430,6 +432,9 @@ def StartScene():
                 elif color_counter < 100:
                     color_up = True
                 warning_bar.draw(warning_bar.rect.x,warning_bar.rect.y,color_counter)
+            
+            boss_bar.draw_boss_bar(boss_bar.width*(boss.life/100))
+            boss_bar_border.draw(boss_bar_border.rect.x,boss_bar_border.rect.y,255)
                 
 
                 
