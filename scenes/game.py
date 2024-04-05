@@ -5,7 +5,7 @@ este modulo manejara la escena donde ocurre nuestro juego
 
 import pygame, time
 
-from pygame.locals import (K_ESCAPE, KEYDOWN, QUIT, K_p, K_1,K_2,K_b,K_v,K_n,K_m,K_j,K_k)
+from pygame.locals import (K_ESCAPE, KEYDOWN, QUIT, K_p, K_1,K_2,K_b,K_v,K_n,K_m,K_j,K_k,K_e,K_SPACE)
 
 from elements.jorge import Player
 
@@ -13,6 +13,7 @@ from elements.bug import (Enemy,Boss,Boss_Missile,Boss_Ray,Boss_Ball)
 
 from elements.buttons import (Button, draw_text,cronometer_format,Image)
 
+from elements.bullet import Bullet
 
 def StartScene():
     ''' iniciamos los modulos de pygame'''
@@ -61,6 +62,7 @@ def StartScene():
     ''' 4.- contenedores de enemigos y jugador'''
     enemies = pygame.sprite.Group()
     players = pygame.sprite.Group()
+    bullets = pygame.sprite.Group()
     enemy_attacks = pygame.sprite.Group()
     #players.add(player1)
     #players.add(player2)
@@ -162,6 +164,16 @@ def StartScene():
                         game_state = "pause"
                     else:
                         pass
+                if event.key == K_SPACE and game_state=="play":
+                    new_bullet = Bullet(player1.rect.right,player1.rect.top)
+                    bullets.add(new_bullet)
+                    all_sprites.add(new_bullet)
+                
+                if event.key == K_e and game_state=="play" and player_qty==2:
+                    new_bullet = Bullet(player2.rect.right,player2.rect.top)
+                    bullets.add(new_bullet)
+                    all_sprites.add(new_bullet)
+
                 #Boss_test
                 if event.key == K_b:
                     game_state = "boss_test"
@@ -258,8 +270,14 @@ def StartScene():
                 if pygame.sprite.spritecollideany(player2,enemies):
                     # player2.kill()
                     game_state = "over"
+            for enemy in enemies:
+                collision =pygame.sprite.spritecollideany(enemy,bullets)
+                if collision:
+                    enemy.kill()
+                    collision.kill()
             player1.update(pressed_keys)
             enemies.update()
+            bullets.update()
             for entity in all_sprites:
                 screen.blit(entity.surf,entity.rect)
             clock.tick(40)
@@ -366,11 +384,14 @@ def StartScene():
                     # player2.kill()
                     print("DOS")
                     game_state = "over"
+            
             for entity in enemies:
                 screen.blit(entity.surf,entity.rect)
+
             player1.update(pressed_keys)
             enemies.update()
             boss.update()
+            bullets.update()
             if boss_state == 2:
                 new_boss_ray.update(boss)
                 screen.blit(new_boss_ray.surf,new_boss_ray.rect)
