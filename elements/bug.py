@@ -8,7 +8,8 @@ from pygame.locals import (RLEACCEL)
 
 BUGpng = pygame.image.load("assets/bug.png")
 BUGpng_scaled = pygame.transform.scale(BUGpng,(60,61))
-Bosspng_scaled = pygame.transform.scale(BUGpng,(500,500))
+Bosspng = pygame.image.load("assets/boss.png")
+Bosspng_scaled = pygame.transform.scale(Bosspng,(500,500))
 
 class Enemy(pygame.sprite.Sprite):
 
@@ -67,11 +68,12 @@ class Boss(pygame.sprite.Sprite):
 
 
 Boss_missile_png = pygame.image.load("assets/boss_missile.png")
+Boss_Missile_png_scaled = pygame.transform.scale(Boss_missile_png,(Boss_missile_png.get_width()*2,Boss_missile_png.get_height()*2))
 class Boss_Missile(pygame.sprite.Sprite):
     def __init__(self, SCREEN_WIDTH, SCREEN_HEIGHT):
         # nos permite invocar métodos o atributos de Sprite
         super(Boss_Missile, self).__init__()
-        self.surf = Boss_missile_png
+        self.surf = Boss_Missile_png_scaled
         self.surf.set_colorkey((0,0,0),RLEACCEL)
         self.screenwidth= SCREEN_WIDTH
         self.screenheight= SCREEN_HEIGHT
@@ -89,6 +91,8 @@ class Boss_Missile(pygame.sprite.Sprite):
         dist_y = self.rect.y - (player.rect.y + player.surf.get_height()/2) 
         if dist_x < 150:
             self.rect.move_ip(-4,0)
+        elif dist_y == 0:
+            self.rect.move_ip(-dist_x/abs(dist_x)*4,0)
         else:
             self.rect.move_ip(-dist_x/abs(dist_x)*4,-dist_y/abs(dist_y)*4)
         if self.rect.right<0:
