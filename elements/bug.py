@@ -51,7 +51,7 @@ class Boss(pygame.sprite.Sprite):
         )
         self.speed = 2
         self.going_up = True
-        self.life = 100
+        self.life = 200
         pass
 
 

@@ -49,26 +49,38 @@ def StartScene():
     ''' 1.- creamos el reloj del juego'''
     
     clock = pygame.time.Clock()
-    ''' 2.- generador de enemigos'''
     
-    ADDENEMY = pygame.USEREVENT + 1
-    pygame.time.set_timer(ADDENEMY,600)
-    
-    ''' 3.- creamos la instancia de jugador'''
+    ''' 1.- creamos la instancia de jugador'''
     #player1 = Player(SCREEN_WIDTH,SCREEN_HEIGHT,1)
     #player2 = Player(SCREEN_WIDTH,SCREEN_HEIGHT,2)
     player_qty = 0
+
+    #Puntuacion:
+    puntuacion = 0
+    record_puntuacion = 0
+
+    ''' 3.- generador de enemigos'''
+    
+    ADDENEMY = pygame.USEREVENT + 1
+    pygame.time.set_timer(ADDENEMY,400 - puntuacion//2)
     
     ''' 4.- contenedores de enemigos y jugador'''
     enemies = pygame.sprite.Group()
     players = pygame.sprite.Group()
     bullets = pygame.sprite.Group()
+    bosses = pygame.sprite.Group()
     enemy_attacks = pygame.sprite.Group()
     #players.add(player1)
     #players.add(player2)
     all_sprites = pygame.sprite.Group()
     #all_sprites.add(players)
-    
+
+    '''Creacion boss'''
+    boss_bar_image = pygame.image.load("assets/boss_bar.png").convert_alpha()
+    boss_bar = Image(SCREEN_WIDTH//2,100,boss_bar_image,1,screen)
+    boss_bar_border_image = pygame.image.load("assets/boss_bar_border.png").convert_alpha()
+    boss_bar_border = Image(SCREEN_WIDTH//2,100,boss_bar_border_image,1,screen) 
+    boss_state = 0
     
     ''' hora de hacer el gameloop '''
     running = True
@@ -126,34 +138,35 @@ def StartScene():
     game_state = "menu"
     #Estados de menu de inicio: "main", "players"
     menu_state = "main"
-    
-    #Boss test
-    boss_bar_image = pygame.image.load("assets/boss_bar.png").convert_alpha()
-    boss_bar = Image(SCREEN_WIDTH//2,100,boss_bar_image,1,screen)
-    boss_bar_border_image = pygame.image.load("assets/boss_bar_border.png").convert_alpha()
-    boss_bar_border = Image(SCREEN_WIDTH//2,100,boss_bar_border_image,1,screen)
-    missile_yes = False
+    #Estados del modo de juego: "main", "boss"
+    play_state = "main"
+
+
+    #Variables para el boss:
+    boss_alive = False
+    boss_attack_cycle = 0
+    ADDENEMY_BOSS_FIGHT = pygame.USEREVENT + 3
+    pygame.time.set_timer(ADDENEMY_BOSS_FIGHT,1000 - puntuacion//2)
+    #Misiles
+    missile_alive = False
     ADDBOSS_MISSILE = pygame.USEREVENT + 2
     pygame.time.set_timer(ADDBOSS_MISSILE,4000)
-    ADDENEMY_BOSS_FIGHT = pygame.USEREVENT + 3
-    pygame.time.set_timer(ADDENEMY_BOSS_FIGHT,1600)
-    boss_state = 0
-    #
-    player_target_image = pygame.image.load("assets/player_target.png").convert_alpha()
-    player_target_image_2 = pygame.image.load("assets/player_target_2.png").convert_alpha()
-    player_target = Image(0,0,player_target_image,0.13,screen)
-    boss_state_1_counter = 0
-    new_boss_ray = 0
-    #
-    boss_attack_cycle = 0
+    #Rayo
     color_counter = 100
     color_up = True
     warning_bar_image = pygame.image.load("assets/Danger_warning.png").convert_alpha()
     warning_bar_image_scaled = pygame.transform.scale(warning_bar_image, (SCREEN_WIDTH, 500))
     warning_bar = Image(SCREEN_WIDTH/2,SCREEN_HEIGHT/2,warning_bar_image_scaled,1,screen)
+    new_boss_ray = 0
+    #Bolas
     ADDBOSS_BALLS = pygame.USEREVENT + 4
     pygame.time.set_timer(ADDBOSS_BALLS,3500)
     balls_alive = False
+    #Target
+    player_target_image = pygame.image.load("assets/player_target.png").convert_alpha()
+    player_target_image_2 = pygame.image.load("assets/player_target_2.png").convert_alpha()
+    player_target = Image(0,0,player_target_image,0.13,screen)
+    boss_state_1_counter = 0
 
     
     while running == True:
@@ -167,81 +180,43 @@ def StartScene():
                     else:
                         pass
                 if event.key == K_SPACE and game_state=="play":
-                    new_bullet = Bullet(player1.rect.right,player1.rect.top)
+                    new_bullet = Bullet(player1.rect.right,player1.rect.top,SCREEN_WIDTH,SCREEN_HEIGHT)
                     bullets.add(new_bullet)
                     all_sprites.add(new_bullet)
                 
                 if event.key == K_e and game_state=="play" and player_qty==2:
-                    new_bullet = Bullet(player2.rect.right,player2.rect.top)
+                    new_bullet = Bullet(player2.rect.right,player2.rect.top,SCREEN_WIDTH,SCREEN_HEIGHT)
                     bullets.add(new_bullet)
                     all_sprites.add(new_bullet)
-
-                #Boss_test
-                if event.key == K_b:
-                    game_state = "boss_test"
-                    for entity in enemies:
-                        entity.kill()
-                    boss = Boss(SCREEN_WIDTH,SCREEN_HEIGHT)
-                    all_sprites.add(boss)
-                    enemies.add(boss)
-                if event.key == K_v:
-                    boss.life -=1
-                if event.key == K_m:
-                    if boss_state != 2:
-                        boss_state = 2
-                        new_boss_ray = Boss_Ray(SCREEN_WIDTH,SCREEN_HEIGHT,boss)
-                        #enemy_attacks.add(new_boss_ray)
-                        enemy_attacks.add(new_boss_ray)
-                        all_sprites.add(new_boss_ray)
-                    else:
-                        boss_state = 0
-                        new_boss_ray.kill()
-                if event.key == K_j:
-                    if boss_state != 3:
-                        boss_state = 3
-                        for i in range(1,6):
-                            new_boss_ball = Boss_Ball(SCREEN_WIDTH,SCREEN_HEIGHT,boss,i)
-                            #enemy_attacks.add(new_boss_ray)
-                            enemy_attacks.add(new_boss_ball)
-                            all_sprites.add(new_boss_ball)
-                    else:
-                        boss_state = 0
-                if event.key == K_n:
-                    if boss_state != 1:
-                        boss_state = 1
-                    elif boss_state == 1:
-                        boss_state = 0
-                if event.key == K_k:
-                    boss_state = 4
             elif event.type == QUIT:
                 running = False
-            elif event.type == ADDENEMY and game_state == "play":
+            elif event.type == ADDENEMY and game_state == "play" and play_state == "main":
                 new_enemy = Enemy(SCREEN_WIDTH,SCREEN_HEIGHT)
                 enemies.add(new_enemy)
                 all_sprites.add(new_enemy)
-            elif event.type == ADDENEMY_BOSS_FIGHT and game_state == "boss_test":
+            elif event.type == ADDENEMY_BOSS_FIGHT and game_state == "play" and play_state == "boss":
                 new_enemy = Enemy(SCREEN_WIDTH,SCREEN_HEIGHT)
                 enemies.add(new_enemy)
                 all_sprites.add(new_enemy)
-            elif event.type == ADDBOSS_MISSILE and game_state == "boss_test" and boss_state == 1:
-                missile_yes = True
+            elif event.type == ADDBOSS_MISSILE and game_state == "play" and play_state == "boss" and boss_state == 1:
+                missile_alive = True
                 new_boss_misile = Boss_Missile(SCREEN_WIDTH,SCREEN_HEIGHT)
                 enemy_attacks.add(new_boss_misile)
                 all_sprites.add(new_boss_misile)
-            elif event.type == ADDBOSS_BALLS and game_state == "boss_test" and boss_state == 3:
+            elif event.type == ADDBOSS_BALLS and game_state == "play" and play_state == "boss" and boss_state == 3:
                 balls_alive = True
                 for i in range(1,6):
                     new_boss_ball = Boss_Ball(SCREEN_WIDTH,SCREEN_HEIGHT,boss,i)
                     enemy_attacks.add(new_boss_ball)
                     all_sprites.add(new_boss_ball)
         
-        #BOSS ATTACKS
+        #Reloj para los ataques del boss
     
         if 400 < boss_attack_cycle < 1000:
             boss_state = 1
             balls_alive = False
         elif 1250 < boss_attack_cycle < 1300:
-            missile_yes = False
+            missile_alive = False
         elif 1300 < boss_attack_cycle < 1500:
             boss_state = 4
         elif 1500 < boss_attack_cycle < 1700:
@@ -264,24 +239,88 @@ def StartScene():
         # ESTADOS DE JUEGO:
         if game_state == "play":    #JUEGO SE EJECUTA
             screen.blit(background_image,[0,0])
-            if pygame.sprite.spritecollideany(player1,enemies):
-                # player1.kill()
+            if pygame.sprite.spritecollideany(player1,enemies) or pygame.sprite.spritecollideany(player1,enemy_attacks) or pygame.sprite.spritecollideany(player1,bosses):
                 game_state = "over"
             if player_qty == 2:
                 player2.update(pressed_keys)
-                if pygame.sprite.spritecollideany(player2,enemies):
-                    # player2.kill()
+                if pygame.sprite.spritecollideany(player2,enemies) or pygame.sprite.spritecollideany(player2,enemy_attacks) or pygame.sprite.spritecollideany(player2,bosses):
                     game_state = "over"
             for enemy in enemies:
-                collision =pygame.sprite.spritecollideany(enemy,bullets)
+                collision = pygame.sprite.spritecollideany(enemy,bullets)
                 if collision:
+                    puntuacion += 1
                     enemy.kill()
                     collision.kill()
+
+            if puntuacion > 250 and boss_alive == False:
+                play_state = "boss"
+                boss_alive = True
+                boss_attack_cycle = 0
+                boss = Boss(SCREEN_WIDTH,SCREEN_HEIGHT)
+                bosses.add(boss)
+                all_sprites.add(boss)
+
             player1.update(pressed_keys)
             enemies.update()
             bullets.update()
-            for entity in all_sprites:
-                screen.blit(entity.surf,entity.rect)
+
+            if play_state == "boss":
+                #
+                boss_attack_cycle += 1
+                boss.update()
+                for entity in enemies:
+                    screen.blit(entity.surf,entity.rect)
+                for boss in bosses:
+                    collision = pygame.sprite.spritecollideany(boss,bullets)
+                    if collision:
+                        boss.life -= 1
+                        collision.kill()
+                if boss.life == 0:
+                    boss.kill()
+                    game_state = "win"
+                #Estados de ataques del boss
+                if missile_alive == 1:
+                    boss_state_1_counter += 1
+                    draw_text(f"Counter = {str(boss_state_1_counter)}",font,(255,255,255),0,20,screen)
+                    if 50 > boss_state_1_counter > 30:
+                        player_target.change_image(player_target_image_2)
+                    if boss_state_1_counter > 50:
+                        player_target.change_image(player_target_image)
+                        boss_state_1_counter = 0
+                    for entity in enemy_attacks:
+                        if type(entity) == type(new_boss_misile):
+                            entity.update(player1)
+                if boss_state == 4:
+                    if color_up:
+                        color_counter += 2
+                    elif color_up == False:
+                        color_counter -= 2
+                    if color_counter > 200:
+                        color_up = False
+                    elif color_counter < 100:
+                        color_up = True
+                    warning_bar.draw(warning_bar.rect.x,warning_bar.rect.y,color_counter)
+                if boss_state == 2:
+                    new_boss_ray.update(boss)
+                    screen.blit(new_boss_ray.surf,new_boss_ray.rect)
+                if balls_alive:
+                    for entity in enemy_attacks:
+                        if type(entity) == type(new_boss_ball):
+                            entity.update()
+                
+                #
+                for entity in all_sprites:
+                    if entity != new_boss_ray and type(entity) != type(Enemy(0,0)):
+                        screen.blit(entity.surf,entity.rect)
+                if missile_alive == 1:
+                    player_target.draw(player1.rect.x,player1.rect.y,255)
+                boss_bar.draw_boss_bar(boss_bar.width*(boss.life/100))
+                boss_bar_border.draw(boss_bar_border.rect.x,boss_bar_border.rect.y,255)
+                pass
+
+            if play_state == "main":
+                for entity in all_sprites:
+                    screen.blit(entity.surf,entity.rect)
             clock.tick(40)
     
             #CRONOMETRO EN PANTALLA
@@ -289,6 +328,9 @@ def StartScene():
             cronometer_time = cronometer_format(game_time_int,font)
             cronometer = font.render(cronometer_time, True, (255,255, 255), None)
             screen.blit(cronometer, cronometer_Rect)
+
+            #Puntuacion en pantalla
+            draw_text(f"Puntuacion = {str(puntuacion)}",font,(255,255,255),150-len(str(puntuacion)), SCREEN_HEIGHT-30,screen)
         
         elif game_state == "menu": #MENU DE INICIO
             out_time_int = pygame.time.get_ticks() - game_time_int - old_time_int
@@ -320,6 +362,7 @@ def StartScene():
     
         elif game_state == "pause": # MENU DE PAUSA
             screen.blit(pause_menu_image_scaled, [0, 0])
+            draw_text(f"Puntuacion: {puntuacion}",font,(255,255,255),SCREEN_WIDTH/2,150,screen)
             draw_text(f"Tiempo: {cronometer_time}",font,(255,255,255),SCREEN_WIDTH/2,200,screen)
             out_time_int = pygame.time.get_ticks() - game_time_int - old_time_int
             if button_7.draw(button_7_image_1):
@@ -327,12 +370,16 @@ def StartScene():
             if button_6.draw(button_6_image_1):
                 game_state = "menu"
                 menu_state = "main"
+                play_state = "main"
+                boss_alive = False
                 for entity in all_sprites:
                     entity.kill()
                 old_time_int = pygame.time.get_ticks()
                 out_time_int = 0
                 game_time_int = 0
                 player_qty = 0
+                puntuacion = 0
+                time.sleep(0.15)
             if button_2_1.draw(button_2_image_1):
                 running = False
 
@@ -340,107 +387,47 @@ def StartScene():
             if game_time_int > record_time_int:
                 record_time_int = game_time_int
                 record_str = cronometer_format(record_time_int,font)
+            if puntuacion > record_puntuacion:
+                record_puntuacion = puntuacion
             screen.blit(game_over_image_scaled, [0, 0])
             draw_text(f"Record: {record_str}",font,(255, 191, 0),250,300,screen)
             if game_time_int == record_time_int:
                 draw_text(f"Tiempo: {cronometer_time}",font,(255,191,0),250,350,screen)
             else:
                 draw_text(f"Tiempo: {cronometer_time}",font,(255,255,255),250,350,screen)
+            draw_text(f"Record: {record_puntuacion}",font,(255, 191, 0),250,200,screen)
+            if record_puntuacion == puntuacion:
+                draw_text(f"Puntuacion: {puntuacion}",font,(255,191,0),250,250,screen)
+            else:
+                draw_text(f"Puntuacion: {puntuacion}",font,(255,255,255),250,250,screen)
             if button_1_2.draw(button_1_image_1):
                 old_time_int = pygame.time.get_ticks()
                 out_time_int = 0
                 game_time_int = 0
+                puntuacion = 0
                 game_state = "play"
+                play_state = "main"
+                boss_alive = False
                 for entity in all_sprites:
-                    if entity in enemies or entity in enemy_attacks:
+                    if entity in enemies or entity in enemy_attacks or entity in bullets or entity in bosses:
                         entity.kill()
                     elif entity in players:
                         entity.rect.move_ip(-4000,-4000)
             if button_6_2.draw(button_6_image_1):
                 game_state = "menu"
                 menu_state = "main"
+                play_state = "main"
+                boss_alive = False
                 for entity in all_sprites:
                     entity.kill()
                 old_time_int = pygame.time.get_ticks()
                 out_time_int = 0
                 game_time_int = 0
+                puntuacion = 0
                 player_qty = 0
                 time.sleep(0.15)
             if button_2_2.draw(button_2_image_1):
                 running = False
-        
-        elif game_state == "boss_test":
-            boss_attack_cycle += 1
-            screen.blit(background_image,[0,0])
-            draw_text(str(boss.life),font,(255,255,255),SCREEN_WIDTH//2,20,screen)
-            draw_text(f"Boss state = {str(boss_state)}",font,(255,255,255),SCREEN_WIDTH-150,20,screen)
-            draw_text(f"Counter = {str(boss_attack_cycle)}",font,(255,255,255),40,40,screen)
-            boss_bar.draw_boss_bar(boss_bar.width*(boss.life/100))
-            if pygame.sprite.spritecollideany(player1,enemies) or pygame.sprite.spritecollideany(player1,enemy_attacks):
-                # player1.kill()
-                print("UNO")
-                game_state = "over"
-            if player_qty == 2:
-                player2.update(pressed_keys)
-                if pygame.sprite.spritecollideany(player2,enemies) or pygame.sprite.spritecollideany(player2,enemy_attacks):
-                    # player2.kill()
-                    print("DOS")
-                    game_state = "over"
-            
-            for entity in enemies:
-                screen.blit(entity.surf,entity.rect)
-
-            player1.update(pressed_keys)
-            enemies.update()
-            boss.update()
-            bullets.update()
-            if boss_state == 2:
-                new_boss_ray.update(boss)
-                screen.blit(new_boss_ray.surf,new_boss_ray.rect)
-            if boss.life <= 0:
-                boss.kill()
-            for entity in all_sprites:
-                if entity != new_boss_ray and type(entity) != type(Enemy(0,0)):
-                    screen.blit(entity.surf,entity.rect)
-            if missile_yes == 1:
-                player_target.draw(player1.rect.x,player1.rect.y,255)
-                boss_state_1_counter += 1
-                draw_text(f"Counter = {str(boss_state_1_counter)}",font,(255,255,255),0,20,screen)
-                if 50 > boss_state_1_counter > 30:
-                    player_target.change_image(player_target_image_2)
-                if boss_state_1_counter > 50:
-                    player_target.change_image(player_target_image)
-                    boss_state_1_counter = 0
-                for entity in enemy_attacks:
-                    if type(entity) == type(new_boss_misile):
-                        entity.update(player1)
-                # if pygame.sprite.spritecollideany(player1,enemy_attacks):
-                #     game_state = "over"
-                #     print("TRES")
-            if balls_alive:
-                for entity in enemy_attacks:
-                    if type(entity) == type(new_boss_ball):
-                        entity.update()
-            if boss_state == 4:
-                screen.blit(surface, (0,0))
-                if color_up:
-                    color_counter += 2
-                elif color_up == False:
-                    color_counter -= 2
-                if color_counter > 200:
-                    color_up = False
-                elif color_counter < 100:
-                    color_up = True
-                warning_bar.draw(warning_bar.rect.x,warning_bar.rect.y,color_counter)
-            
-            boss_bar.draw_boss_bar(boss_bar.width*(boss.life/100))
-            boss_bar_border.draw(boss_bar_border.rect.x,boss_bar_border.rect.y,255)
-                
-
-                
-            clock.tick(40)
-                    
-            
         
         pygame.display.flip()
                 
