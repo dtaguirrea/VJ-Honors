@@ -30,9 +30,11 @@ def StartScene():
     ''' 2.- crear el objeto pantalla'''
     screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
     surface = pygame.Surface((SCREEN_WIDTH,SCREEN_HEIGHT),pygame.SRCALPHA)
-    background_image = pygame.image.load("assets/pixelBackground.jpg").convert()
+    background_image = pygame.image.load("assets/background_image_3.jpg").convert()
     background_image_scaled = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
-    
+    #movimiento
+    velocidad_screen=0
+    FPS=20
     pause_menu_image = pygame.image.load("assets/pause_background.jpg").convert()
     pause_menu_image_scaled = pygame.transform.scale(pause_menu_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
     
@@ -110,7 +112,7 @@ def StartScene():
     modo_over=False
     modo__bosstest=False
     pygame.mixer.music.load("Sonido/Musica_menu2.mp3")
-    pygame.mixer.music.play() 
+    pygame.mixer.music.play(-1) 
     
     '''BOTONES'''
     #Boton "Iniciar"
@@ -184,8 +186,10 @@ def StartScene():
     player_target = Image(0,0,player_target_image,0.13,screen)
     boss_state_1_counter = 0
 
-    
+    #estado inicial
+    estado_inicial=0
     while running == True:
+        # Actualizar la posición del fondo
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == K_p or event.key == K_ESCAPE :
@@ -206,7 +210,7 @@ def StartScene():
                     player1.abre=True
                     player1.cambio_imagen()
                     sonido_bala.play()
-                else:
+                elif game_state=="play":
                     player1.abre=False
                     player1.cambio_imagen()
                 if event.key == K_e and game_state=="play" and player_qty==2 and player2.cooldown==0:
@@ -273,14 +277,29 @@ def StartScene():
     
         # ESTADOS DE JUEGO:
         if game_state == "play":    #JUEGO SE EJECUTA
+            if estado_inicial==0:
+                player1.escudo=False
+                player1.abre=False
+            estado_inicial+=1
+            if player1.powerup=="shield":
+                player1.escudo=True
+                player1.cambio_imagen()
+            else:
+                player1.escudo=False
+                player1.cambio_imagen()
             #sonido
             modo_play=True
             modo_menu=False
             modo_pausa=False
             modo_over=False
             modo__bosstest=False
-            #
-            screen.blit(background_image,[0,0])
+            #movimiento pantalla
+            screen_moviendose=velocidad_screen%background_image_scaled.get_rect().width
+            screen.blit(background_image_scaled, (screen_moviendose-background_image_scaled.get_rect().width, 0))
+            velocidad_screen-=FPS
+            if screen_moviendose<SCREEN_WIDTH:
+                screen.blit(background_image_scaled, (screen_moviendose,0))
+
             if pygame.sprite.spritecollideany(player1,enemies) or pygame.sprite.spritecollideany(player1,enemy_attacks) or pygame.sprite.spritecollideany(player1,bosses):
                 if player1.powerup!="shield":
                         game_state = "over"
@@ -330,7 +349,9 @@ def StartScene():
                     if powerup.type==7 or powerup.type==8:
                         collision.powerup="piercing"
                     powerup.kill()
-            if puntuacion > 250 and boss_alive == False:
+            #cambio por powerup
+            
+            if puntuacion > 150 and boss_alive == False:
                 play_state = "boss"
                 boss_alive = True
                 boss_attack_cycle = 0
@@ -531,13 +552,13 @@ def StartScene():
                 #sonido        
         if modo_play==False and game_state=="play":
            pygame.mixer.music.load("Sonido/Musica_play_1.mp3")
-           pygame.mixer.music.play() 
+           pygame.mixer.music.play(-1) 
         elif modo_menu==False and game_state=="menu":
-            pygame.mixer.music.load("Sonido/Musica_menu2.mp3")
-            pygame.mixer.music.play() 
+                pygame.mixer.music.load("Sonido/Musica_menu2.mp3")
+                pygame.mixer.music.play(-1) 
         elif modo_over==False and game_state=="over":
             pygame.mixer.music.load("Sonido/Musica_over1.mp3")
-            pygame.mixer.music.play() 
+            pygame.mixer.music.play(-1) 
         elif modo_pausa==False and game_state=="pause":
             pass
         elif modo__bosstest==False and game_state=="boss_test":

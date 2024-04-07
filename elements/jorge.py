@@ -12,6 +12,9 @@ JorgePNG_scaled = pygame.transform.scale(JorgePNG,(80,90))
 #probando la apertura
 JorgePNG_abierto= pygame.image.load("assets/JorgeVJabierto.png")
 JorgePNG_abierto_scaled=pygame.transform.scale(JorgePNG_abierto,(80,90))
+#jorgeescudo
+JorgePNG_escudo= pygame.image.load("assets/Ducky_shield_real_deveras.png")
+JorgePNG_escudo_scaled=pygame.transform.scale(JorgePNG_escudo,(80,90))
 
 JorgePNG_2 = pygame.image.load("assets/JorgeVJ2.png")
 JorgePNG_scaled_2 = pygame.transform.scale(JorgePNG_2,(80,90))
@@ -36,10 +39,15 @@ class Player(pygame.sprite.Sprite):
         pass
     #probando la apertura
     def cambio_imagen(self):
-        if self.abre:
+        if self.abre==True and self.escudo==False:
             self.surf = JorgePNG_abierto_scaled
+        elif self.escudo==True and self.abre==False:
+            self.surf=JorgePNG_escudo_scaled
+        elif self.abre==True and self.escudo==True:
+            self.surf= JorgePNG_escudo_scaled
         else:
             self.surf = JorgePNG_scaled
+        
     def update(self, pressed_keys):
         if self.player==1:
             if pressed_keys[K_UP]:
@@ -79,7 +87,7 @@ class Player(pygame.sprite.Sprite):
         if self.powerup=="speed":
             self.speed=8
         if self.powerup==None:
-            self.speed=4
+            self.speed=15
         if self.poweruptimer>0 and self.powerup!=None:
             self.poweruptimer=self.poweruptimer-1
             if self.poweruptimer==0:
