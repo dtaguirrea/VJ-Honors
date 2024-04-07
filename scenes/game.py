@@ -101,7 +101,12 @@ def StartScene():
     cronometer = font.render(cronometer_time, True, (255,255, 255), None)
     cronometer_Rect = cronometer.get_rect()
     cronometer_Rect.center = (SCREEN_WIDTH - 150, SCREEN_HEIGHT-30)
-    
+
+    powerupcronometer_time = ""
+    powerupcronometer = font.render(powerupcronometer_time,True,(255,255,255),None)
+    powerupcronometer_Rect = powerupcronometer.get_rect()
+    powerupcronometer_Rect.center = (SCREEN_WIDTH//2,SCREEN_HEIGHT//2)
+
     """Sonidos"""
     sonido_bala=pygame.mixer.Sound("Sonido/Sonido_pato.wav")
     #sonido_bala.set_volume(ruido)
@@ -311,6 +316,7 @@ def StartScene():
                 for enemy in enemies:
                     enemy.kill()
                     puntuacion+=1
+                    player1.poweruptimer=0
                 player1.powerup=None
             if player_qty == 2:
                 player2.update(pressed_keys)
@@ -324,6 +330,7 @@ def StartScene():
                     for enemy in enemies:
                         enemy.kill()
                         puntuacion+=1
+                        player2.poweruptimer=0
                     player2.powerup=None
             for enemy in enemies:
                 collision = pygame.sprite.spritecollideany(enemy,bullets)
@@ -349,9 +356,7 @@ def StartScene():
                     if powerup.type==7 or powerup.type==8:
                         collision.powerup="piercing"
                     powerup.kill()
-            #cambio por powerup
-            
-            if puntuacion > 150 and boss_alive == False:
+            if puntuacion > 250 and boss_alive == False:
                 play_state = "boss"
                 boss_alive = True
                 boss_attack_cycle = 0
@@ -428,6 +433,9 @@ def StartScene():
             cronometer = font.render(cronometer_time, True, (255,255, 255), None)
             screen.blit(cronometer, cronometer_Rect)
 
+            powerupcronometer_time=cronometer_format(player1.poweruptimer,font)
+            powerupcronometer = font.render(powerupcronometer_time,True, (255,255,255),None)
+            screen.blit(powerupcronometer,powerupcronometer_Rect)
             #Puntuacion en pantalla
             draw_text(f"Puntuacion = {str(puntuacion)}",font,(255,255,255),150-len(str(puntuacion)), SCREEN_HEIGHT-30,screen)
         
@@ -478,6 +486,7 @@ def StartScene():
             screen.blit(pause_menu_image_scaled, [0, 0])
             draw_text(f"Puntuacion: {puntuacion}",font,(255,255,255),SCREEN_WIDTH/2,150,screen)
             draw_text(f"Tiempo: {cronometer_time}",font,(255,255,255),SCREEN_WIDTH/2,200,screen)
+            draw_text(f"Powerup: {powerupcronometer_time}",font,(255,255,255),SCREEN_WIDTH/2,SCREEN_HEIGHT/2,screen)
             out_time_int = pygame.time.get_ticks() - game_time_int - old_time_int
             if button_7.draw(button_7_image_1):
                 game_state = "play"

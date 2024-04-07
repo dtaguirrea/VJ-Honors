@@ -34,7 +34,7 @@ class Player(pygame.sprite.Sprite):
         self.player=player
         self.cooldown=0
         self.powerup=None
-        self.poweruptimer=300
+        self.poweruptimer=0
         self.speed=4
         pass
     #probando la apertura
@@ -92,7 +92,6 @@ class Player(pygame.sprite.Sprite):
             self.poweruptimer=self.poweruptimer-1
             if self.poweruptimer==0:
                 self.powerup=None
-                self.poweruptimer=300
         if self.cooldown >0:
             self.cooldown=self.cooldown-1
         pass
