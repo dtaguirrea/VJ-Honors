@@ -95,6 +95,17 @@ def StartScene():
     cronometer_Rect = cronometer.get_rect()
     cronometer_Rect.center = (SCREEN_WIDTH - 150, SCREEN_HEIGHT-30)
     
+    """Sonidos"""
+    sonido_bala=pygame.mixer.Sound("Sonido/Sonido_pato.wav")
+    #sonido_bala.set_volume(ruido)
+    #cosas necesarias
+    modo_play=False
+    modo_menu=False
+    modo_pausa=False
+    modo_over=False
+    modo__bosstest=False
+    pygame.mixer.music.load("Sonido/Musica_menu2.mp3")
+    pygame.mixer.music.play() 
     
     '''BOTONES'''
     #Boton "Iniciar"
@@ -183,7 +194,12 @@ def StartScene():
                     new_bullet = Bullet(player1.rect.right,player1.rect.top,SCREEN_WIDTH,SCREEN_HEIGHT)
                     bullets.add(new_bullet)
                     all_sprites.add(new_bullet)
-                
+                    player1.abre=True
+                    player1.cambio_imagen()
+                    sonido_bala.play()
+                else:
+                    player1.abre=False
+                    player1.cambio_imagen()
                 if event.key == K_e and game_state=="play" and player_qty==2:
                     new_bullet = Bullet(player2.rect.right,player2.rect.top,SCREEN_WIDTH,SCREEN_HEIGHT)
                     bullets.add(new_bullet)
@@ -238,6 +254,13 @@ def StartScene():
     
         # ESTADOS DE JUEGO:
         if game_state == "play":    #JUEGO SE EJECUTA
+            #sonido
+            modo_play=True
+            modo_menu=False
+            modo_pausa=False
+            modo_over=False
+            modo__bosstest=False
+            #
             screen.blit(background_image,[0,0])
             if pygame.sprite.spritecollideany(player1,enemies) or pygame.sprite.spritecollideany(player1,enemy_attacks) or pygame.sprite.spritecollideany(player1,bosses):
                 game_state = "over"
@@ -333,6 +356,14 @@ def StartScene():
             draw_text(f"Puntuacion = {str(puntuacion)}",font,(255,255,255),150-len(str(puntuacion)), SCREEN_HEIGHT-30,screen)
         
         elif game_state == "menu": #MENU DE INICIO
+            #sonido
+            inicio_debe_sonar_algo=False
+            modo_play=False
+            modo_menu=True
+            modo_pausa=False
+            modo_over=False
+            modo__bosstest=False
+            # 
             out_time_int = pygame.time.get_ticks() - game_time_int - old_time_int
             if menu_state == "main":
                 screen.blit(menu_image_scaled, [0, 0])
@@ -361,6 +392,13 @@ def StartScene():
                 pass
     
         elif game_state == "pause": # MENU DE PAUSA
+            #sonido
+            modo_play=False
+            modo_menu=False
+            modo_pausa=True
+            modo_over=False
+            modo__bosstest=False
+            #
             screen.blit(pause_menu_image_scaled, [0, 0])
             draw_text(f"Puntuacion: {puntuacion}",font,(255,255,255),SCREEN_WIDTH/2,150,screen)
             draw_text(f"Tiempo: {cronometer_time}",font,(255,255,255),SCREEN_WIDTH/2,200,screen)
@@ -384,6 +422,13 @@ def StartScene():
                 running = False
 
         elif game_state == "over":
+            #sonido
+            modo_play=False
+            modo_menu=False
+            modo_pausa=False
+            modo_over=True
+            modo__bosstest=False
+            #
             if game_time_int > record_time_int:
                 record_time_int = game_time_int
                 record_str = cronometer_format(record_time_int,font)
@@ -428,6 +473,20 @@ def StartScene():
                 time.sleep(0.15)
             if button_2_2.draw(button_2_image_1):
                 running = False
+                #sonido        
+        if modo_play==False and game_state=="play":
+           pygame.mixer.music.load("Sonido/Musica_play_1.mp3")
+           pygame.mixer.music.play() 
+        elif modo_menu==False and game_state=="menu":
+            pygame.mixer.music.load("Sonido/Musica_menu2.mp3")
+            pygame.mixer.music.play() 
+        elif modo_over==False and game_state=="over":
+            pygame.mixer.music.load("Sonido/Musica_over1.mp3")
+            pygame.mixer.music.play() 
+        elif modo_pausa==False and game_state=="pause":
+            pass
+        elif modo__bosstest==False and game_state=="boss_test":
+            pass
         
         pygame.display.flip()
                 

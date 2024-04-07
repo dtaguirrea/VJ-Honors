@@ -9,6 +9,10 @@ from pygame.locals import (
 
 JorgePNG = pygame.image.load("assets/JorgeVJ.png")
 JorgePNG_scaled = pygame.transform.scale(JorgePNG,(80,90))
+#probando la apertura
+JorgePNG_abierto= pygame.image.load("assets/JorgeVJabierto.png")
+JorgePNG_abierto_scaled=pygame.transform.scale(JorgePNG_abierto,(80,90))
+
 JorgePNG_2 = pygame.image.load("assets/JorgeVJ2.png")
 JorgePNG_scaled_2 = pygame.transform.scale(JorgePNG_2,(80,90))
 
@@ -26,7 +30,12 @@ class Player(pygame.sprite.Sprite):
         self.screenheight= SCREEN_HEIGHT
         self.player=player
         pass
-
+    #probando la apertura
+    def cambio_imagen(self):
+        if self.abre:
+            self.surf = JorgePNG_abierto_scaled
+        else:
+            self.surf = JorgePNG_scaled
     def update(self, pressed_keys):
         if self.player==1:
             if pressed_keys[K_UP]:
