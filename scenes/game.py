@@ -4,7 +4,7 @@ este modulo manejara la escena donde ocurre nuestro juego
 '''
 
 import pygame, time
-
+import random
 from pygame.locals import (K_ESCAPE, KEYDOWN, QUIT, K_p, K_1,K_2,K_b,K_v,K_n,K_m,K_j,K_k,K_e,K_SPACE)
 
 from elements.jorge import Player
@@ -14,6 +14,8 @@ from elements.bug import (Enemy,Boss,Boss_Missile,Boss_Ray,Boss_Ball)
 from elements.buttons import (Button, draw_text,cronometer_format,Image)
 
 from elements.bullet import Bullet
+
+from elements.powerup import Powerup
 
 def StartScene():
     ''' iniciamos los modulos de pygame'''
@@ -59,16 +61,19 @@ def StartScene():
     puntuacion = 0
     record_puntuacion = 0
 
-    ''' 3.- generador de enemigos'''
+    ''' 3.- generador de enemigos y powerups'''
     
     ADDENEMY = pygame.USEREVENT + 1
     pygame.time.set_timer(ADDENEMY,400 - puntuacion//2)
     
+    ADDPOWERUP = pygame.USEREVENT + 5
+    pygame.time.set_timer(ADDPOWERUP,3000+puntuacion*2)
     ''' 4.- contenedores de enemigos y jugador'''
     enemies = pygame.sprite.Group()
     players = pygame.sprite.Group()
     bullets = pygame.sprite.Group()
     bosses = pygame.sprite.Group()
+    powerups =pygame.sprite.Group()
     enemy_attacks = pygame.sprite.Group()
     #players.add(player1)
     #players.add(player2)
@@ -190,9 +195,13 @@ def StartScene():
                         game_state = "pause"
                     else:
                         pass
-                if event.key == K_SPACE and game_state=="play":
+                if event.key == K_SPACE and game_state=="play" and player1.cooldown==0:
                     new_bullet = Bullet(player1.rect.right,player1.rect.top,SCREEN_WIDTH,SCREEN_HEIGHT)
                     bullets.add(new_bullet)
+                    if player1.powerup=="ammo":
+                        player1.cooldown=1
+                    if player1.powerup!="ammo":
+                        player1.cooldown=20
                     all_sprites.add(new_bullet)
                     player1.abre=True
                     player1.cambio_imagen()
@@ -200,16 +209,26 @@ def StartScene():
                 else:
                     player1.abre=False
                     player1.cambio_imagen()
-                if event.key == K_e and game_state=="play" and player_qty==2:
+                if event.key == K_e and game_state=="play" and player_qty==2 and player2.cooldown==0:
                     new_bullet = Bullet(player2.rect.right,player2.rect.top,SCREEN_WIDTH,SCREEN_HEIGHT)
                     bullets.add(new_bullet)
+                    if player2.powerup=="ammo":
+                        player2.cooldown=1
+                    if player2.powerup!="ammo":
+                        player2.cooldown=20
                     all_sprites.add(new_bullet)
+                    
             elif event.type == QUIT:
                 running = False
             elif event.type == ADDENEMY and game_state == "play" and play_state == "main":
                 new_enemy = Enemy(SCREEN_WIDTH,SCREEN_HEIGHT)
                 enemies.add(new_enemy)
                 all_sprites.add(new_enemy)
+            elif event.type == ADDPOWERUP and game_state == "play":
+                if random.randint(0,10)<=8:
+                    new_powerup = Powerup(SCREEN_WIDTH,SCREEN_HEIGHT,random.randint(0,8))
+                    powerups.add(new_powerup)
+                    all_sprites.add(new_powerup)
             elif event.type == ADDENEMY_BOSS_FIGHT and game_state == "play" and play_state == "boss":
                 new_enemy = Enemy(SCREEN_WIDTH,SCREEN_HEIGHT)
                 enemies.add(new_enemy)
@@ -263,18 +282,54 @@ def StartScene():
             #
             screen.blit(background_image,[0,0])
             if pygame.sprite.spritecollideany(player1,enemies) or pygame.sprite.spritecollideany(player1,enemy_attacks) or pygame.sprite.spritecollideany(player1,bosses):
-                game_state = "over"
+                if player1.powerup!="shield":
+                        game_state = "over"
+                        player1.powerup=None
+
+                else:
+                    pygame.sprite.spritecollideany(player1,enemies).kill()
+            if player1.powerup=="explotion":
+                for enemy in enemies:
+                    enemy.kill()
+                    puntuacion+=1
+                player1.powerup=None
             if player_qty == 2:
                 player2.update(pressed_keys)
                 if pygame.sprite.spritecollideany(player2,enemies) or pygame.sprite.spritecollideany(player2,enemy_attacks) or pygame.sprite.spritecollideany(player2,bosses):
-                    game_state = "over"
+                    if player2.powerup!="shield":
+                        player2.powerup=None
+                        game_state = "over"
+                    else:
+                        pygame.sprite.spritecollideany(player2,enemies).kill()
+                if player2.powerup=="explotion":
+                    for enemy in enemies:
+                        enemy.kill()
+                        puntuacion+=1
+                    player2.powerup=None
             for enemy in enemies:
                 collision = pygame.sprite.spritecollideany(enemy,bullets)
                 if collision:
                     puntuacion += 1
                     enemy.kill()
-                    collision.kill()
-
+                    if player1.powerup!="piercing":
+                        collision.kill()
+                    if player_qty==2:
+                        if player2.powerup!="piercing":
+                            collision.kill()
+            for powerup in powerups:
+                collision=pygame.sprite.spritecollideany(powerup,players)
+                if collision:
+                    if powerup.type==0 or powerup.type==1:
+                        collision.powerup="speed"
+                    if powerup.type==2 or powerup.type==3:
+                        collision.powerup="ammo"
+                    if powerup.type==4 or powerup.type==5:
+                        collision.powerup="shield"
+                    if powerup.type==6:
+                        collision.powerup="explotion"
+                    if powerup.type==7 or powerup.type==8:
+                        collision.powerup="piercing"
+                    powerup.kill()
             if puntuacion > 250 and boss_alive == False:
                 play_state = "boss"
                 boss_alive = True

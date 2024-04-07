@@ -29,6 +29,10 @@ class Player(pygame.sprite.Sprite):
         self.screenwidth= SCREEN_WIDTH
         self.screenheight= SCREEN_HEIGHT
         self.player=player
+        self.cooldown=0
+        self.powerup=None
+        self.poweruptimer=300
+        self.speed=4
         pass
     #probando la apertura
     def cambio_imagen(self):
@@ -39,13 +43,13 @@ class Player(pygame.sprite.Sprite):
     def update(self, pressed_keys):
         if self.player==1:
             if pressed_keys[K_UP]:
-                self.rect.move_ip(0,-4)
+                self.rect.move_ip(0,-self.speed)
             if pressed_keys[K_DOWN]:
-                self.rect.move_ip(0,4)
+                self.rect.move_ip(0,self.speed)
             if pressed_keys[K_RIGHT]:
-                self.rect.move_ip(4,0)
+                self.rect.move_ip(self.speed,0)
             if pressed_keys[K_LEFT]:
-                self.rect.move_ip(-4,0)
+                self.rect.move_ip(-self.speed,0)
             if self.rect.left<0:
                 self.rect.left=0
             if self.rect.right>self.screenwidth:
@@ -72,4 +76,15 @@ class Player(pygame.sprite.Sprite):
                 self.rect.top=0
             if self.rect.bottom>self.screenheight:
                 self.rect.bottom=self.screenheight
-            pass
+        if self.powerup=="speed":
+            self.speed=8
+        if self.powerup==None:
+            self.speed=4
+        if self.poweruptimer>0 and self.powerup!=None:
+            self.poweruptimer=self.poweruptimer-1
+            if self.poweruptimer==0:
+                self.powerup=None
+                self.poweruptimer=300
+        if self.cooldown >0:
+            self.cooldown=self.cooldown-1
+        pass

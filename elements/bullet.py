@@ -21,5 +21,6 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.move_ip(self.speed,0)
         if self.rect.right>self.width+100:
             self.kill()
+
         pass
                 
