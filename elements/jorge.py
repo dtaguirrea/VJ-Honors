@@ -36,6 +36,7 @@ class Player(pygame.sprite.Sprite):
         self.powerup=None
         self.poweruptimer=0
         self.speed=4
+        self.abre = False
         pass
     #probando la apertura
     def cambio_imagen(self):
