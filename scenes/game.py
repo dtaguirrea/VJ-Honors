@@ -470,7 +470,7 @@ def StartScene():
             powerupcronometer1 = font.render(powerupcronometer_time1,True, (255,255,255),None)
             powerupcronometer1_rect=powerupcronometer1.get_rect()
             powerupcronometer1_rect.center=(player1.rect.centerx,player1.rect.centery-60)
-            if player1.powerup!=None:
+            if player1.powerup!=None and player1.powerup != "none":
                 screen.blit(powerupcronometer1,powerupcronometer1_rect)
             if player_qty ==2:
                 powerupcronometer_time2=cronometer_format(player2.poweruptimer*10,font) [4:]
@@ -478,7 +478,7 @@ def StartScene():
                 powerupcronometer2_rect.center=(player2.rect.centerx,player2.rect.centery-60)
                 #El cronometro funciona con milisegundos, asique si el tiempo está en segundos agregale un *1000
                 powerupcronometer2 = font.render(powerupcronometer_time2,True, (255,255,255),None)
-                if player2.powerup!=None:
+                if player2.powerup!=None and player1.powerup != "none":
                     screen.blit(powerupcronometer2,powerupcronometer2_rect)
             #Puntuacion en pantalla
             draw_text(f"Puntuacion = {str(puntuacion)}",font,(255,255,255),150-len(str(puntuacion)), SCREEN_HEIGHT-30,screen)
