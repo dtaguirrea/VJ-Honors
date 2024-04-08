@@ -66,7 +66,7 @@ def StartScene():
     ''' 3.- generador de enemigos y powerups'''
     
     ADDENEMY = pygame.USEREVENT + 1
-    pygame.time.set_timer(ADDENEMY,400 - puntuacion//2)
+    pygame.time.set_timer(ADDENEMY,600 - puntuacion//10)
     
     ADDPOWERUP = pygame.USEREVENT + 5
     pygame.time.set_timer(ADDPOWERUP,3000+puntuacion*2)
@@ -77,6 +77,7 @@ def StartScene():
     bosses = pygame.sprite.Group()
     powerups =pygame.sprite.Group()
     enemy_attacks = pygame.sprite.Group()
+    all_enemies = pygame.sprite.Group()
     #players.add(player1)
     #players.add(player2)
     all_sprites = pygame.sprite.Group()
@@ -169,7 +170,7 @@ def StartScene():
     boss_alive = False
     boss_attack_cycle = 0
     ADDENEMY_BOSS_FIGHT = pygame.USEREVENT + 3
-    pygame.time.set_timer(ADDENEMY_BOSS_FIGHT,1000 - puntuacion//2)
+    pygame.time.set_timer(ADDENEMY_BOSS_FIGHT,2000 - puntuacion//2)
     #Misiles
     missile_alive = False
     ADDBOSS_MISSILE = pygame.USEREVENT + 2
@@ -232,6 +233,7 @@ def StartScene():
             elif event.type == ADDENEMY and game_state == "play" and play_state == "main":
                 new_enemy = Enemy(SCREEN_WIDTH,SCREEN_HEIGHT)
                 enemies.add(new_enemy)
+                all_enemies.add(new_enemy)
                 all_sprites.add(new_enemy)
             elif event.type == ADDPOWERUP and game_state == "play":
                 if random.randint(0,10)<=8:
@@ -241,17 +243,20 @@ def StartScene():
             elif event.type == ADDENEMY_BOSS_FIGHT and game_state == "play" and play_state == "boss":
                 new_enemy = Enemy(SCREEN_WIDTH,SCREEN_HEIGHT)
                 enemies.add(new_enemy)
+                all_enemies.add(new_enemy)
                 all_sprites.add(new_enemy)
             elif event.type == ADDBOSS_MISSILE and game_state == "play" and play_state == "boss" and boss_state == 1:
                 missile_alive = True
                 new_boss_misile = Boss_Missile(SCREEN_WIDTH,SCREEN_HEIGHT)
                 enemy_attacks.add(new_boss_misile)
+                all_enemies.add(new_boss_misile)
                 all_sprites.add(new_boss_misile)
             elif event.type == ADDBOSS_BALLS and game_state == "play" and play_state == "boss" and boss_state == 3:
                 balls_alive = True
                 for i in range(1,6):
                     new_boss_ball = Boss_Ball(SCREEN_WIDTH,SCREEN_HEIGHT,boss,i)
                     enemy_attacks.add(new_boss_ball)
+                    all_enemies.add(new_boss_ball)
                     all_sprites.add(new_boss_ball)
         
         #Reloj para los ataques del boss
@@ -268,6 +273,7 @@ def StartScene():
             if boss_attack_cycle == 1501:
                 new_boss_ray = Boss_Ray(SCREEN_WIDTH,SCREEN_HEIGHT,boss)
                 enemy_attacks.add(new_boss_ray)
+                all_enemies.add(new_boss_ray)
                 all_sprites.add(new_boss_ray)
         elif 1700 < boss_attack_cycle < 1800:
             new_boss_ray.kill()
@@ -305,13 +311,16 @@ def StartScene():
             if screen_moviendose<SCREEN_WIDTH:
                 screen.blit(background_image_scaled, (screen_moviendose,0))
 
-            if pygame.sprite.spritecollideany(player1,enemies) or pygame.sprite.spritecollideany(player1,enemy_attacks) or pygame.sprite.spritecollideany(player1,bosses):
-                if player1.powerup!="shield":
-                        game_state = "over"
-                        player1.powerup=None
+            for player in players:
+                collision = pygame.sprite.spritecollideany(player, all_enemies)
+                if collision:
+                    if player.powerup != "shield":
+                            game_state = "over"
+                            player.powerup = None
 
-                else:
-                    pygame.sprite.spritecollideany(player1,enemies).kill()
+                    else:
+                        collision.kill()
+                        player.powerup = "none"
             if player1.powerup=="explotion":
                 for enemy in enemies:
                     enemy.kill()
@@ -320,12 +329,12 @@ def StartScene():
                 player1.powerup=None
             if player_qty == 2:
                 player2.update(pressed_keys)
-                if pygame.sprite.spritecollideany(player2,enemies) or pygame.sprite.spritecollideany(player2,enemy_attacks) or pygame.sprite.spritecollideany(player2,bosses):
-                    if player2.powerup!="shield":
-                        player2.powerup=None
-                        game_state = "over"
-                    else:
-                        pygame.sprite.spritecollideany(player2,enemies).kill()
+                # if pygame.sprite.spritecollideany(player2,enemies) or pygame.sprite.spritecollideany(player2,enemy_attacks) or pygame.sprite.spritecollideany(player2,bosses):
+                #     if player2.powerup!="shield":
+                #         player2.powerup=None
+                #         game_state = "over"
+                #     else:
+                #         pygame.sprite.spritecollideany(player2,enemies).kill()
                 if player2.powerup=="explotion":
                     for enemy in enemies:
                         enemy.kill()
@@ -356,12 +365,13 @@ def StartScene():
                     if powerup.type==7 or powerup.type==8:
                         collision.powerup="piercing"
                     powerup.kill()
-            if puntuacion > 250 and boss_alive == False:
+            if puntuacion > 100 and boss_alive == False:
                 play_state = "boss"
                 boss_alive = True
                 boss_attack_cycle = 0
                 boss = Boss(SCREEN_WIDTH,SCREEN_HEIGHT)
                 bosses.add(boss)
+                all_enemies.add(boss)
                 all_sprites.add(boss)
 
             player1.update(pressed_keys)
@@ -433,7 +443,8 @@ def StartScene():
             cronometer = font.render(cronometer_time, True, (255,255, 255), None)
             screen.blit(cronometer, cronometer_Rect)
 
-            powerupcronometer_time=cronometer_format(player1.poweruptimer,font)
+            powerupcronometer_time=cronometer_format(player1.poweruptimer,font) 
+            #El cronometro funciona con milisegundos, asique si el tiempo está en segundos agregale un *1000
             powerupcronometer = font.render(powerupcronometer_time,True, (255,255,255),None)
             screen.blit(powerupcronometer,powerupcronometer_Rect)
             #Puntuacion en pantalla
@@ -539,7 +550,7 @@ def StartScene():
                 play_state = "main"
                 boss_alive = False
                 for entity in all_sprites:
-                    if entity in enemies or entity in enemy_attacks or entity in bullets or entity in bosses:
+                    if entity in enemies or entity in enemy_attacks or entity in bullets or entity in bosses or entity in powerups:
                         entity.kill()
                     elif entity in players:
                         entity.rect.move_ip(-4000,-4000)
