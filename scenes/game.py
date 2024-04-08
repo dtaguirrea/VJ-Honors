@@ -79,6 +79,7 @@ def StartScene():
     bullets = pygame.sprite.Group()
     bosses = pygame.sprite.Group()
     powerups =pygame.sprite.Group()
+    new_powerup = 0
     enemy_attacks = pygame.sprite.Group()
     all_enemies = pygame.sprite.Group()
     #players.add(player1)
@@ -327,6 +328,9 @@ def StartScene():
             if screen_moviendose<SCREEN_WIDTH:
                 screen.blit(background_image_scaled, (screen_moviendose,0))
 
+            for entity in powerups:
+                    screen.blit(entity.surf,entity.rect)
+
             for player in players:
                 collision = pygame.sprite.spritecollideany(player, all_enemies)
                 if collision:
@@ -412,6 +416,8 @@ def StartScene():
                 #
                 boss_attack_cycle += 1
                 boss.update()
+                for entity in powerups:
+                    screen.blit(entity.surf,entity.rect)
                 for entity in enemies:
                     screen.blit(entity.surf,entity.rect)
                 for boss in bosses:
@@ -455,7 +461,8 @@ def StartScene():
                 #
                 for entity in all_sprites:
                     if entity != new_boss_ray and type(entity) != type(Enemy(0,0)):
-                        screen.blit(entity.surf,entity.rect)
+                        if type(entity) != type(new_powerup):
+                            screen.blit(entity.surf,entity.rect)
                 if missile_alive == 1:
                     player_target.draw(player1.rect.x,player1.rect.y,255)
                 boss_bar.draw_boss_bar(boss_bar.width*(boss.life/100))
@@ -464,7 +471,8 @@ def StartScene():
 
             if play_state == "main" or play_state == "boss_incoming":
                 for entity in all_sprites:
-                    screen.blit(entity.surf,entity.rect)
+                    if type(entity) != type(new_powerup):
+                        screen.blit(entity.surf,entity.rect)
             clock.tick(40)
     
             #CRONOMETRO EN PANTALLA
