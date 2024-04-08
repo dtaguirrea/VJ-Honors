@@ -46,6 +46,9 @@ def StartScene():
 
     game_over_image = pygame.image.load("assets/game_over_background.jpg").convert()
     game_over_image_scaled = pygame.transform.scale(game_over_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+
+    win_image = pygame.image.load("assets/win_background.jpg").convert()
+    win_image_scaled = pygame.transform.scale(win_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
     
     font = pygame.font.Font('assets/minecraft.ttf', 32)
     
@@ -169,8 +172,19 @@ def StartScene():
     #Variables para el boss:
     boss_alive = False
     boss_attack_cycle = 0
+    boss_appear_counter = 0
     ADDENEMY_BOSS_FIGHT = pygame.USEREVENT + 3
     pygame.time.set_timer(ADDENEMY_BOSS_FIGHT,2000 - puntuacion//2)
+    #Aparicion
+    alert_boss_image_1 = pygame.image.load("assets/boss_alert_1.png").convert_alpha()
+    alert_boss_image_scaled_1 = pygame.transform.scale(alert_boss_image_1, (SCREEN_WIDTH, 500))
+    alert_boss_1 = Image(SCREEN_WIDTH/2,SCREEN_HEIGHT/2,alert_boss_image_scaled_1,1,screen)
+    alert_boss_image_2 = pygame.image.load("assets/boss_alert_2.png").convert_alpha()
+    alert_boss_image_scaled_2 = pygame.transform.scale(alert_boss_image_2, (SCREEN_WIDTH, 500))
+    alert_boss_2 = Image(SCREEN_WIDTH/2,SCREEN_HEIGHT/2,alert_boss_image_scaled_2,1,screen)
+    alert_boss_image_3 = pygame.image.load("assets/boss_alert_3.png").convert_alpha()
+    alert_boss_image_scaled_3 = pygame.transform.scale(alert_boss_image_3, (SCREEN_WIDTH, 500))
+    alert_boss_3 = Image(SCREEN_WIDTH/2,SCREEN_HEIGHT/2,alert_boss_image_scaled_3,1,screen)
     #Misiles
     missile_alive = False
     ADDBOSS_MISSILE = pygame.USEREVENT + 2
@@ -369,13 +383,18 @@ def StartScene():
                     collision.poweruptimer=300
                     powerup.kill()
             if puntuacion > 100 and boss_alive == False:
-                play_state = "boss"
-                boss_alive = True
-                boss_attack_cycle = 0
-                boss = Boss(SCREEN_WIDTH,SCREEN_HEIGHT)
-                bosses.add(boss)
-                all_enemies.add(boss)
-                all_sprites.add(boss)
+                boss_appear_counter += 1
+                alert_boss_1.draw(alert_boss_1.rect.x,alert_boss_1.rect.y,200)
+                alert_boss_3.draw(alert_boss_1.rect.x-boss_appear_counter,alert_boss_1.rect.y,200)
+                alert_boss_2.draw(alert_boss_1.rect.x+boss_appear_counter,alert_boss_1.rect.y,240)
+                if boss_appear_counter == 200:
+                    play_state = "boss"
+                    boss_alive = True
+                    boss_attack_cycle = 0
+                    boss = Boss(SCREEN_WIDTH,SCREEN_HEIGHT)
+                    bosses.add(boss)
+                    all_enemies.add(boss)
+                    all_sprites.add(boss)
 
             player1.update(pressed_keys)
             enemies.update()
@@ -582,7 +601,62 @@ def StartScene():
                 time.sleep(0.15)
             if button_2_2.draw(button_2_image_1):
                 running = False
-                #sonido        
+
+        elif game_state == "win":
+            #sonido
+            modo_play=False
+            modo_menu=False
+            modo_pausa=False
+            modo_over=False
+            modo_win = True
+            modo__bosstest=False
+            #
+            if game_time_int > record_time_int:
+                record_time_int = game_time_int
+                record_str = cronometer_format(record_time_int,font)
+            if puntuacion > record_puntuacion:
+                record_puntuacion = puntuacion
+            screen.blit(win_image_scaled, [0, 0])
+            draw_text(f"Record: {record_str}",font,(255, 191, 0),375,350,screen)
+            if game_time_int == record_time_int:
+                draw_text(f"Tiempo: {cronometer_time}",font,(255,191,0),375,400,screen)
+            else:
+                draw_text(f"Tiempo: {cronometer_time}",font,(255,255,255),375,400,screen)
+            draw_text(f"Record: {record_puntuacion}",font,(255, 191, 0),375,250,screen)
+            if record_puntuacion == puntuacion:
+                draw_text(f"Puntuacion: {puntuacion}",font,(255,191,0),375,300,screen)
+            else:
+                draw_text(f"Puntuacion: {puntuacion}",font,(255,255,255),375,300,screen)
+            if button_1_2.draw(button_1_image_1):
+                old_time_int = pygame.time.get_ticks()
+                out_time_int = 0
+                game_time_int = 0
+                puntuacion = 0
+                game_state = "play"
+                play_state = "main"
+                boss_alive = False
+                for entity in all_sprites:
+                    if entity in enemies or entity in enemy_attacks or entity in bullets or entity in bosses or entity in powerups:
+                        entity.kill()
+                    elif entity in players:
+                        entity.rect.move_ip(-4000,-4000)
+            if button_6_2.draw(button_6_image_1):
+                game_state = "menu"
+                menu_state = "main"
+                play_state = "main"
+                boss_alive = False
+                for entity in all_sprites:
+                    entity.kill()
+                old_time_int = pygame.time.get_ticks()
+                out_time_int = 0
+                game_time_int = 0
+                puntuacion = 0
+                player_qty = 0
+                time.sleep(0.15)
+            if button_2_2.draw(button_2_image_1):
+                running = False
+        #sonido        
+
         if modo_play==False and game_state=="play":
            pygame.mixer.music.load("Sonido/Musica_play_1.mp3")
            pygame.mixer.music.play(-1) 
