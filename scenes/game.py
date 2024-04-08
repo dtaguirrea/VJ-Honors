@@ -120,6 +120,7 @@ def StartScene():
     modo_pausa=False
     modo_over=False
     modo__bosstest=False
+    modo_boss_appears = False
     pygame.mixer.music.load("Sonido/Musica_menu2.mp3")
     pygame.mixer.music.play(-1) 
     
@@ -165,7 +166,7 @@ def StartScene():
     game_state = "menu"
     #Estados de menu de inicio: "main", "players"
     menu_state = "main"
-    #Estados del modo de juego: "main", "boss"
+    #Estados del modo de juego: "main", "boss_incoming", "boss"
     play_state = "main"
 
 
@@ -176,6 +177,7 @@ def StartScene():
     ADDENEMY_BOSS_FIGHT = pygame.USEREVENT + 3
     pygame.time.set_timer(ADDENEMY_BOSS_FIGHT,2000 - puntuacion//2)
     #Aparicion
+    boss_appear = False
     alert_boss_image_1 = pygame.image.load("assets/boss_alert_1.png").convert_alpha()
     alert_boss_image_scaled_1 = pygame.transform.scale(alert_boss_image_1, (SCREEN_WIDTH, 500))
     alert_boss_1 = Image(SCREEN_WIDTH/2,SCREEN_HEIGHT/2,alert_boss_image_scaled_1,1,screen)
@@ -383,7 +385,11 @@ def StartScene():
                     collision.poweruptimer=300
                     powerup.kill()
             if puntuacion > 100 and boss_alive == False:
+                play_state = "boss_incoming"
+                boss_appear = True
                 boss_appear_counter += 1
+                if boss_appear_counter == 1:
+                    modo_play=False
                 alert_boss_1.draw(alert_boss_1.rect.x,alert_boss_1.rect.y,200)
                 alert_boss_3.draw(alert_boss_1.rect.x-boss_appear_counter,alert_boss_1.rect.y,200)
                 alert_boss_2.draw(alert_boss_1.rect.x+boss_appear_counter,alert_boss_1.rect.y,240)
@@ -395,6 +401,8 @@ def StartScene():
                     bosses.add(boss)
                     all_enemies.add(boss)
                     all_sprites.add(boss)
+                    boss_appear = False
+                    modo_play=False
 
             player1.update(pressed_keys)
             enemies.update()
@@ -454,7 +462,7 @@ def StartScene():
                 boss_bar_border.draw(boss_bar_border.rect.x,boss_bar_border.rect.y,255)
                 pass
 
-            if play_state == "main":
+            if play_state == "main" or play_state == "boss_incoming":
                 for entity in all_sprites:
                     screen.blit(entity.surf,entity.rect)
             clock.tick(40)
@@ -491,6 +499,7 @@ def StartScene():
             modo_pausa=False
             modo_over=False
             modo__bosstest=False
+            modo_boss_appears = False
             # 
             out_time_int = pygame.time.get_ticks() - game_time_int - old_time_int
             if menu_state == "main":
@@ -526,6 +535,7 @@ def StartScene():
             modo_pausa=True
             modo_over=False
             modo__bosstest=False
+            modo_boss_appears = False
             #
             screen.blit(pause_menu_image_scaled, [0, 0])
             draw_text(f"Puntuacion: {puntuacion}",font,(255,255,255),SCREEN_WIDTH/2,150,screen)
@@ -556,6 +566,7 @@ def StartScene():
             modo_pausa=False
             modo_over=True
             modo__bosstest=False
+            modo_boss_appears = False
             #
             if game_time_int > record_time_int:
                 record_time_int = game_time_int
@@ -610,6 +621,7 @@ def StartScene():
             modo_over=False
             modo_win = True
             modo__bosstest=False
+            modo_boss_appears = False
             #
             if game_time_int > record_time_int:
                 record_time_int = game_time_int
@@ -657,7 +669,7 @@ def StartScene():
                 running = False
         #sonido        
 
-        if modo_play==False and game_state=="play":
+        if modo_play==False and game_state=="play" and play_state == "main":
            pygame.mixer.music.load("Sonido/Musica_play_1.mp3")
            pygame.mixer.music.play(-1) 
         elif modo_menu==False and game_state=="menu":
@@ -670,6 +682,12 @@ def StartScene():
             pass
         elif modo__bosstest==False and game_state=="boss_test":
             pass
+        elif modo_play == False and game_state == "play" and play_state == "boss_incoming":
+            pygame.mixer.music.load("Sonido/Boss_appears.mp3")
+            pygame.mixer.music.play(-1)
+        elif modo_play==False and game_state=="play" and play_state == "boss":
+           pygame.mixer.music.load("Sonido/Boss_battle.mp3")
+           pygame.mixer.music.play(-1) 
         
         pygame.display.flip()
                 
