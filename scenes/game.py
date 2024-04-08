@@ -253,7 +253,8 @@ def StartScene():
             elif event.type == QUIT:
                 running = False
             elif event.type == ADDENEMY and game_state == "play" and play_state == "main":
-                new_enemy = Enemy(SCREEN_WIDTH,SCREEN_HEIGHT)
+                enemytype=random.randint(0,2)
+                new_enemy = Enemy(SCREEN_WIDTH,SCREEN_HEIGHT,enemytype)
                 enemies.add(new_enemy)
                 all_enemies.add(new_enemy)
                 all_sprites.add(new_enemy)

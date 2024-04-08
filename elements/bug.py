@@ -13,25 +13,58 @@ Bosspng_scaled = pygame.transform.scale(Bosspng,(500,500))
 
 class Enemy(pygame.sprite.Sprite):
 
-    def __init__(self, SCREEN_WIDTH, SCREEN_HEIGHT):
+    def __init__(self, SCREEN_WIDTH, SCREEN_HEIGHT,type):
         # nos permite invocar métodos o atributos de Sprite
         super(Enemy, self).__init__()
         self.surf = BUGpng_scaled
+        self.type=type
         self.surf.set_colorkey((0,0,0),RLEACCEL)
-        self.rect = self.surf.get_rect(
-            center=(
-                SCREEN_WIDTH + 100,
-                random.randint(0,SCREEN_HEIGHT)
+        self.speedx = random.randint(3,5)
+        self.speedy = random.randint(3,5)
+        if self.type==0:
+            self.rect = self.surf.get_rect(
+                center=(
+                    SCREEN_WIDTH + 100,
+                    random.randint(0,SCREEN_HEIGHT)
+                )
             )
-        )
-        self.speed = random.randint(3,5)
+        if self.type==1:
+            self.rect = self.surf.get_rect(
+                center=(
+                    random.randint(80, SCREEN_WIDTH-80),
+                    random.choice([80,SCREEN_HEIGHT-80])
+                )
+            )
+            self.speedx = random.randint(3,5)*random.choice([-1,1])
+            self.speedy = random.randint(3,5)*random.choice([-1,1])
+        if self.type==2:
+            self.rect = self.surf.get_rect(
+                center=(
+                    SCREEN_WIDTH + 100,
+                    random.randint(0,SCREEN_HEIGHT)
+                )
+            )
+    
+        self.swidth=SCREEN_WIDTH
+        self.sheight=SCREEN_HEIGHT
         pass
 
 
     def update(self):
-        self.rect.move_ip(-self.speed,0)
-        if self.rect.right<0:
-            self.kill()
+        if self.type==0:
+            self.rect.move_ip(-self.speedx,0)
+            if self.rect.right<0:
+                self.kill()
+        if self.type==1:
+            self.rect.move_ip(-self.speedx,self.speedy)
+            if self.rect.left < 0 or self.rect.right > self.swidth :
+                self.speedx = -self.speedx
+            if self.rect.top < 0 or self.rect.bottom > self.sheight:
+                self.speedy = -self.speedy
+        if self.type==2:
+            self.rect.move_ip(-self.speedx,0)
+            if self.rect.right<self.swidth-150:
+                self.speedx=0
         pass
 
 class Boss(pygame.sprite.Sprite):
