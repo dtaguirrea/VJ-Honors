@@ -35,7 +35,7 @@ class Player(pygame.sprite.Sprite):
         self.cooldown=0
         self.powerup=None
         self.poweruptimer=0
-        self.speed=4
+        self.speed=8
         self.abre = False
         pass
     #probando la apertura
@@ -86,9 +86,9 @@ class Player(pygame.sprite.Sprite):
             if self.rect.bottom>self.screenheight:
                 self.rect.bottom=self.screenheight
         if self.powerup=="speed":
-            self.speed=8
+            self.speed=12
         if self.powerup==None:
-            self.speed=15
+            self.speed=8
         if self.poweruptimer>0 and self.powerup!=None:
             self.poweruptimer=self.poweruptimer-1
             if self.poweruptimer==0:

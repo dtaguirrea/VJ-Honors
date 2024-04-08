@@ -69,7 +69,7 @@ def StartScene():
     pygame.time.set_timer(ADDENEMY,600 - puntuacion//10)
     
     ADDPOWERUP = pygame.USEREVENT + 5
-    pygame.time.set_timer(ADDPOWERUP,3000+puntuacion*2)
+    pygame.time.set_timer(ADDPOWERUP,6000+puntuacion*4)
     ''' 4.- contenedores de enemigos y jugador'''
     enemies = pygame.sprite.Group()
     players = pygame.sprite.Group()
@@ -103,10 +103,10 @@ def StartScene():
     cronometer_Rect = cronometer.get_rect()
     cronometer_Rect.center = (SCREEN_WIDTH - 150, SCREEN_HEIGHT-30)
 
-    powerupcronometer_time = ""
-    powerupcronometer = font.render(powerupcronometer_time,True,(255,255,255),None)
-    powerupcronometer_Rect = powerupcronometer.get_rect()
-    powerupcronometer_Rect.center = (SCREEN_WIDTH//2,SCREEN_HEIGHT//2)
+    powerupcronometer_time1 = ""
+    powerupcronometer1 = font.render(powerupcronometer_time1,True,(255,255,255),None)
+    powerupcronometer_time2 = ""
+    powerupcronometer2 = font.render(powerupcronometer_time2,True,(255,255,255),None)
 
     """Sonidos"""
     sonido_bala=pygame.mixer.Sound("Sonido/Sonido_pato.wav")
@@ -315,12 +315,14 @@ def StartScene():
                 collision = pygame.sprite.spritecollideany(player, all_enemies)
                 if collision:
                     if player.powerup != "shield":
-                            game_state = "over"
+                        game_state = "over"
+                        for player in players:
                             player.powerup = None
-
+                            player.poweruptimer=0
                     else:
                         collision.kill()
                         player.powerup = "none"
+                        player.poweruptimer=0
             if player1.powerup=="explotion":
                 for enemy in enemies:
                     enemy.kill()
@@ -364,6 +366,7 @@ def StartScene():
                         collision.powerup="explotion"
                     if powerup.type==7 or powerup.type==8:
                         collision.powerup="piercing"
+                    collision.poweruptimer=300
                     powerup.kill()
             if puntuacion > 100 and boss_alive == False:
                 play_state = "boss"
@@ -443,10 +446,21 @@ def StartScene():
             cronometer = font.render(cronometer_time, True, (255,255, 255), None)
             screen.blit(cronometer, cronometer_Rect)
 
-            powerupcronometer_time=cronometer_format(player1.poweruptimer,font) 
+            powerupcronometer_time1=cronometer_format(player1.poweruptimer*10,font)[4:]
             #El cronometro funciona con milisegundos, asique si el tiempo está en segundos agregale un *1000
-            powerupcronometer = font.render(powerupcronometer_time,True, (255,255,255),None)
-            screen.blit(powerupcronometer,powerupcronometer_Rect)
+            powerupcronometer1 = font.render(powerupcronometer_time1,True, (255,255,255),None)
+            powerupcronometer1_rect=powerupcronometer1.get_rect()
+            powerupcronometer1_rect.center=(player1.rect.centerx,player1.rect.centery-60)
+            if player1.powerup!=None:
+                screen.blit(powerupcronometer1,powerupcronometer1_rect)
+            if player_qty ==2:
+                powerupcronometer_time2=cronometer_format(player2.poweruptimer*10,font) [4:]
+                powerupcronometer2_rect=powerupcronometer2.get_rect()
+                powerupcronometer2_rect.center=(player2.rect.centerx,player2.rect.centery-60)
+                #El cronometro funciona con milisegundos, asique si el tiempo está en segundos agregale un *1000
+                powerupcronometer2 = font.render(powerupcronometer_time2,True, (255,255,255),None)
+                if player2.powerup!=None:
+                    screen.blit(powerupcronometer2,powerupcronometer2_rect)
             #Puntuacion en pantalla
             draw_text(f"Puntuacion = {str(puntuacion)}",font,(255,255,255),150-len(str(puntuacion)), SCREEN_HEIGHT-30,screen)
         
@@ -497,7 +511,6 @@ def StartScene():
             screen.blit(pause_menu_image_scaled, [0, 0])
             draw_text(f"Puntuacion: {puntuacion}",font,(255,255,255),SCREEN_WIDTH/2,150,screen)
             draw_text(f"Tiempo: {cronometer_time}",font,(255,255,255),SCREEN_WIDTH/2,200,screen)
-            draw_text(f"Powerup: {powerupcronometer_time}",font,(255,255,255),SCREEN_WIDTH/2,SCREEN_HEIGHT/2,screen)
             out_time_int = pygame.time.get_ticks() - game_time_int - old_time_int
             if button_7.draw(button_7_image_1):
                 game_state = "play"
