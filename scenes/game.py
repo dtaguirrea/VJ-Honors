@@ -32,6 +32,8 @@ def StartScene():
     surface = pygame.Surface((SCREEN_WIDTH,SCREEN_HEIGHT),pygame.SRCALPHA)
     background_image = pygame.image.load("assets/background_image_3.jpg").convert()
     background_image_scaled = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+    boss_background_image = pygame.image.load("assets/background_image_2.jpg").convert()
+    boss_background_image_scaled = pygame.transform.scale(boss_background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
     #movimiento
     velocidad_screen=0
     FPS=20
@@ -92,6 +94,8 @@ def StartScene():
     boss_bar = Image(SCREEN_WIDTH//2,100,boss_bar_image,1,screen)
     boss_bar_border_image = pygame.image.load("assets/boss_bar_border.png").convert_alpha()
     boss_bar_border = Image(SCREEN_WIDTH//2,100,boss_bar_border_image,1,screen) 
+    boss_bar_back_image = pygame.image.load("assets/boss_bar_back.png").convert_alpha()
+    boss_bar_back = Image(SCREEN_WIDTH//2,100,boss_bar_back_image,1,screen) 
     boss_state = 0
     
     ''' hora de hacer el gameloop '''
@@ -121,6 +125,7 @@ def StartScene():
     modo_pausa=False
     modo_over=False
     modo__bosstest=False
+    modo_win = False
     modo_boss_appears = False
     pygame.mixer.music.load("Sonido/Musica_menu2.mp3")
     pygame.mixer.music.play(-1) 
@@ -176,7 +181,7 @@ def StartScene():
     boss_attack_cycle = 0
     boss_appear_counter = 0
     ADDENEMY_BOSS_FIGHT = pygame.USEREVENT + 3
-    pygame.time.set_timer(ADDENEMY_BOSS_FIGHT,2000 - puntuacion//2)
+    pygame.time.set_timer(ADDENEMY_BOSS_FIGHT,1600 - puntuacion//10)
     #Aparicion
     boss_appear = False
     alert_boss_image_1 = pygame.image.load("assets/boss_alert_1.png").convert_alpha()
@@ -322,11 +327,19 @@ def StartScene():
             modo_over=False
             modo__bosstest=False
             #movimiento pantalla
-            screen_moviendose=velocidad_screen%background_image_scaled.get_rect().width
-            screen.blit(background_image_scaled, (screen_moviendose-background_image_scaled.get_rect().width, 0))
-            velocidad_screen-=FPS
-            if screen_moviendose<SCREEN_WIDTH:
-                screen.blit(background_image_scaled, (screen_moviendose,0))
+            if play_state == "main":
+                screen_moviendose=velocidad_screen%background_image_scaled.get_rect().width
+                screen.blit(background_image_scaled, (screen_moviendose-background_image_scaled.get_rect().width, 0))
+                velocidad_screen-=FPS
+                if screen_moviendose<SCREEN_WIDTH:
+                    screen.blit(background_image_scaled, (screen_moviendose,0))
+
+            if play_state == "boss" or play_state == "boss_incoming":
+                screen_moviendose=velocidad_screen%boss_background_image_scaled.get_rect().width
+                screen.blit(boss_background_image_scaled, (screen_moviendose-boss_background_image_scaled.get_rect().width, 0))
+                velocidad_screen-=(FPS-10)
+                if screen_moviendose<SCREEN_WIDTH:
+                    screen.blit(boss_background_image_scaled, (screen_moviendose,0))
 
             for entity in powerups:
                     screen.blit(entity.surf,entity.rect)
@@ -465,6 +478,7 @@ def StartScene():
                             screen.blit(entity.surf,entity.rect)
                 if missile_alive == 1:
                     player_target.draw(player1.rect.x,player1.rect.y,255)
+                boss_bar_back.draw(boss_bar_border.rect.x+15,boss_bar_border.rect.y+15,255)
                 boss_bar.draw_boss_bar(boss_bar.width*(boss.life/100))
                 boss_bar_border.draw(boss_bar_border.rect.x,boss_bar_border.rect.y,255)
                 pass
@@ -696,6 +710,9 @@ def StartScene():
         elif modo_play==False and game_state=="play" and play_state == "boss":
            pygame.mixer.music.load("Sonido/Boss_battle.mp3")
            pygame.mixer.music.play(-1) 
+        elif modo_win==False and game_state=="win":
+                pygame.mixer.music.load("Sonido/Musica_win.mp3")
+                pygame.mixer.music.play(-1) 
         
         pygame.display.flip()
                 
