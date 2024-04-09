@@ -31,11 +31,11 @@ class Enemy(pygame.sprite.Sprite):
         if self.type==1:
             self.rect = self.surf.get_rect(
                 center=(
-                    random.randint(50, SCREEN_WIDTH-50),
-                    random.choice([50,SCREEN_HEIGHT-50])
+                    SCREEN_WIDTH-50,
+                    random.randint(50,SCREEN_HEIGHT-50)
                 )
             )
-            self.speedx = random.randint(3,5)*random.choice([-1,1])
+            self.speedx = random.randint(3,5)
             self.speedy = random.randint(3,5)*random.choice([-1,1])
         if self.type==2:
             self.rect = self.surf.get_rect(
