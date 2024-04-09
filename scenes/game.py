@@ -249,6 +249,7 @@ def StartScene():
                     if player2.powerup!="ammo":
                         player2.cooldown=20
                     all_sprites.add(new_bullet)
+                    sonido_bala.play()
                     
             elif event.type == QUIT:
                 running = False
