@@ -87,7 +87,7 @@ class Player(pygame.sprite.Sprite):
                 self.rect.bottom=self.screenheight
         if self.powerup=="speed":
             self.speed=12
-        if self.powerup==None:
+        else:
             self.speed=8
         if self.poweruptimer>0 and self.powerup!=None:
             self.poweruptimer=self.poweruptimer-1
