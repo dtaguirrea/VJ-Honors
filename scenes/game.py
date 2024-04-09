@@ -74,7 +74,7 @@ def StartScene():
     pygame.time.set_timer(ADDENEMY,600 - puntuacion//10)
     
     ADDPOWERUP = pygame.USEREVENT + 5
-    pygame.time.set_timer(ADDPOWERUP,6000+puntuacion*4)
+    pygame.time.set_timer(ADDPOWERUP,1000+puntuacion*4)
     ''' 4.- contenedores de enemigos y jugador'''
     enemies = pygame.sprite.Group()
     players = pygame.sprite.Group()
@@ -253,7 +253,8 @@ def StartScene():
             elif event.type == QUIT:
                 running = False
             elif event.type == ADDENEMY and game_state == "play" and play_state == "main":
-                new_enemy = Enemy(SCREEN_WIDTH,SCREEN_HEIGHT)
+                enemytype=random.randint(0,1)
+                new_enemy = Enemy(SCREEN_WIDTH,SCREEN_HEIGHT,enemytype)
                 enemies.add(new_enemy)
                 all_enemies.add(new_enemy)
                 all_sprites.add(new_enemy)
@@ -343,6 +344,11 @@ def StartScene():
 
             for entity in powerups:
                     screen.blit(entity.surf,entity.rect)
+            for enemy in enemies:
+                if enemy.type==2 and enemy.rect.right==SCREEN_WIDTH-150:
+                    new_enemy_ray=Boss_Ray(SCREEN_WIDTH,SCREEN_HEIGHT,enemy)
+                    enemies.add(new_enemy_ray)
+                    
 
             for player in players:
                 collision = pygame.sprite.spritecollideany(player, all_enemies)
