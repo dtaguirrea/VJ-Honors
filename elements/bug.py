@@ -31,8 +31,8 @@ class Enemy(pygame.sprite.Sprite):
         if self.type==1:
             self.rect = self.surf.get_rect(
                 center=(
-                    random.randint(80, SCREEN_WIDTH-80),
-                    random.choice([80,SCREEN_HEIGHT-80])
+                    random.randint(50, SCREEN_WIDTH-50),
+                    random.choice([50,SCREEN_HEIGHT-50])
                 )
             )
             self.speedx = random.randint(3,5)*random.choice([-1,1])
@@ -61,10 +61,6 @@ class Enemy(pygame.sprite.Sprite):
                 self.speedx = -self.speedx
             if self.rect.top < 0 or self.rect.bottom > self.sheight:
                 self.speedy = -self.speedy
-        if self.type==2:
-            self.rect.move_ip(-self.speedx,0)
-            if self.rect.right<self.swidth-150:
-                self.speedx=0
         pass
 
 class Boss(pygame.sprite.Sprite):
