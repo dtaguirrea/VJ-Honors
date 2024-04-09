@@ -51,6 +51,13 @@ class Enemy(pygame.sprite.Sprite):
 
 
     def update(self):
+        # now = pygame.time.get_ticks()
+        # if now - self.last_update > self.image_switch_delay:
+        #     self.last_update = now
+        #     self.current__image = (self.current__image + 1) % len(self.images)
+        #     self.surf = self.images[self.current__image]
+
+
         if self.type==0:
             self.rect.move_ip(-self.speedx,0)
             if self.rect.right<0:

@@ -74,7 +74,7 @@ def StartScene():
     pygame.time.set_timer(ADDENEMY,600 - puntuacion//10)
     
     ADDPOWERUP = pygame.USEREVENT + 5
-    pygame.time.set_timer(ADDPOWERUP,1000+puntuacion*4)
+    pygame.time.set_timer(ADDPOWERUP,4000+puntuacion*4)
     ''' 4.- contenedores de enemigos y jugador'''
     enemies = pygame.sprite.Group()
     players = pygame.sprite.Group()
@@ -118,6 +118,8 @@ def StartScene():
 
     """Sonidos"""
     sonido_bala=pygame.mixer.Sound("Sonido/Sonido_pato.wav")
+    sonido_powerup=pygame.mixer.Sound("Sonido/Power_music.wav")
+    sonido_muerte=pygame.mixer.Sound("Sonido/dead_sound.wav")
     #sonido_bala.set_volume(ruido)
     #cosas necesarias
     modo_play=False
@@ -265,7 +267,7 @@ def StartScene():
                     powerups.add(new_powerup)
                     all_sprites.add(new_powerup)
             elif event.type == ADDENEMY_BOSS_FIGHT and game_state == "play" and play_state == "boss":
-                new_enemy = Enemy(SCREEN_WIDTH,SCREEN_HEIGHT)
+                new_enemy = Enemy(SCREEN_WIDTH,SCREEN_HEIGHT,0)
                 enemies.add(new_enemy)
                 all_enemies.add(new_enemy)
                 all_sprites.add(new_enemy)
@@ -355,6 +357,7 @@ def StartScene():
                 collision = pygame.sprite.spritecollideany(player, all_enemies)
                 if collision:
                     if player.powerup != "shield":
+                        sonido_muerte.play()
                         game_state = "over"
                         for player in players:
                             player.powerup = None
@@ -396,6 +399,7 @@ def StartScene():
             for powerup in powerups:
                 collision=pygame.sprite.spritecollideany(powerup,players)
                 if collision:
+                    sonido_powerup.play()
                     if powerup.type==0 or powerup.type==1:
                         collision.powerup="speed"
                     if powerup.type==2 or powerup.type==3:
@@ -427,6 +431,7 @@ def StartScene():
                     all_sprites.add(boss)
                     boss_appear = False
                     modo_play=False
+                    boss_appear_counter = 0
 
             player1.update(pressed_keys)
             enemies.update()
@@ -480,7 +485,7 @@ def StartScene():
                 
                 #
                 for entity in all_sprites:
-                    if entity != new_boss_ray and type(entity) != type(Enemy(0,0)):
+                    if entity != new_boss_ray and type(entity) != type(Enemy(0,0,0)):
                         if type(entity) != type(new_powerup):
                             screen.blit(entity.surf,entity.rect)
                 if missile_alive == 1:
@@ -504,7 +509,7 @@ def StartScene():
 
             powerupcronometer_time1=cronometer_format(player1.poweruptimer*10,font)[4:]
             #El cronometro funciona con milisegundos, asique si el tiempo está en segundos agregale un *1000
-            powerupcronometer1 = font.render(powerupcronometer_time1,True, (255,255,255),None)
+            powerupcronometer1 = font.render(powerupcronometer_time1,True, (255, 195, 0),None)
             powerupcronometer1_rect=powerupcronometer1.get_rect()
             powerupcronometer1_rect.center=(player1.rect.centerx,player1.rect.centery-60)
             if player1.powerup!=None and player1.powerup != "none":
@@ -514,8 +519,8 @@ def StartScene():
                 powerupcronometer2_rect=powerupcronometer2.get_rect()
                 powerupcronometer2_rect.center=(player2.rect.centerx,player2.rect.centery-60)
                 #El cronometro funciona con milisegundos, asique si el tiempo está en segundos agregale un *1000
-                powerupcronometer2 = font.render(powerupcronometer_time2,True, (255,255,255),None)
-                if player2.powerup!=None and player1.powerup != "none":
+                powerupcronometer2 = font.render(powerupcronometer_time2,True, (255, 195, 0),None)
+                if player2.powerup!=None and player2.powerup != "none":
                     screen.blit(powerupcronometer2,powerupcronometer2_rect)
             #Puntuacion en pantalla
             draw_text(f"Puntuacion = {str(puntuacion)}",font,(255,255,255),150-len(str(puntuacion)), SCREEN_HEIGHT-30,screen)
